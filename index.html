@@ -79,6 +79,7 @@
             flex: 1;
             height: calc(100vh - 65px);
             overflow: hidden;
+            position: relative;
         }
 
         .side-content {
@@ -100,7 +101,7 @@
             z-index: 1001;
             box-shadow: var(--shadow-sm);
         }
-        .brand-header-row img { height: 32px; object-fit: contain; justify-self: start; }
+        .brand-header-row img { height: 32px; object-fit: contain; }
         .brand-header-row h1 { margin: 0; font-size: 16px; font-weight: 600; text-align: center; color: #ffffff;}
         .header-right-brand { justify-self: end; }
         
@@ -116,6 +117,10 @@
             transition: var(--transition);
         }
         #logoutBtn:hover { background: rgba(255,255,255,0.2); border-color: #fca5a5; }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn { display: none; background: transparent; border: none; padding: 0; cursor: pointer; margin: 0; }
+        .mobile-overlay { display: none; }
 
         /* --- FIXED SIDEBAR --- */
         .sidebar {
@@ -417,14 +422,60 @@
         .sub-nav-btn.active { background: var(--surface); color: var(--text-main); box-shadow: var(--shadow-sm); }
         .sub-nav-btn:hover:not(.active) { background: rgba(0,0,0,0.02); box-shadow: none; transform: none;}
 
+        /* Mobile specific styling overriding desktop layout */
         @media (max-width: 850px) {
             .split-wrapper { flex-direction: column; height: calc(100vh - 65px); overflow: hidden; }
             .side-hero { display: none; }
-            .sidebar { flex: 0 0 auto; width: 100%; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+            
+            .brand-header-row { padding: 0 16px; grid-template-columns: auto 1fr auto; }
+            .mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
+
+            /* Modern Mobile Slide-out Menu */
+            .sidebar { 
+                position: fixed; 
+                top: 65px; 
+                left: -260px; 
+                height: calc(100vh - 65px); 
+                width: 260px;
+                z-index: 1002; 
+                transition: left 0.3s ease; 
+                box-shadow: 4px 0 25px rgba(0,0,0,0.5); 
+            }
+            .sidebar.mobile-open { left: 0; }
             .sidebar-header { display: none; }
-            .sidebar-menu { flex-direction: row; padding: 8px; overflow-x: auto; gap: 8px; }
-            .menu-item { padding: 10px 16px; margin: 0; font-size: 13px; border-radius: var(--radius-sm); white-space: nowrap; flex: 1; justify-content: center; }
-            .menu-item.active { border-left: none; border-bottom: 3px solid var(--accent-orange); }
+            .sidebar-menu { flex-direction: column; padding: 24px 16px; gap: 8px; overflow-y: auto;}
+            
+            .menu-item { 
+                padding: 14px 16px; 
+                border-radius: var(--radius-md); 
+                justify-content: flex-start; 
+                border-left: 4px solid transparent; 
+                border-bottom: none; 
+                font-size: 15px;
+            }
+            .menu-item.active { 
+                border-left: 4px solid var(--accent-orange); 
+                border-bottom: none; 
+                background: rgba(255,255,255,0.1);
+            }
+            
+            /* Overlay when mobile menu is open */
+            .mobile-overlay {
+                display: block; 
+                position: fixed; 
+                top: 65px; 
+                left: 0; 
+                width: 100%; 
+                height: calc(100vh - 65px);
+                background: rgba(15, 23, 42, 0.6); 
+                z-index: 1001; 
+                backdrop-filter: blur(2px);
+                opacity: 0; 
+                pointer-events: none; 
+                transition: opacity 0.3s ease;
+            }
+            .mobile-overlay.show { opacity: 1; pointer-events: auto; }
+
             .side-content { padding: 16px; }
             
             /* Enhanced Mobile Login Card */
@@ -458,7 +509,12 @@
 <body>
 
 <header class="brand-header-row hidden" id="topHeader">
-    <img src="logo2.png" id="dynamicLogo1" alt="Logo">
+    <div style="display:flex; align-items:center; gap:16px; justify-self: start;">
+        <button id="mobileMenuBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
+            <svg width="24" height="24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <img src="logo2.png" id="dynamicLogo1" alt="Logo" style="justify-self: auto;">
+    </div>
     <h1 id="clientPortalName">Client Portal</h1>
     <div class="header-right-brand">
         <button id="logoutBtn" onclick="performLogout()">Sign Out</button>
@@ -471,6 +527,8 @@
         <h2 id="heroTitle" style="margin:0; font-weight:700; font-size: 28px; letter-spacing: -0.5px;">Quality Portal</h2>
         <p id="heroSub" style="opacity:0.8; font-size:15px; margin-top: 12px; font-weight: 400;">Enterprise Management System</p>
     </div>
+
+    <div id="mobileOverlay" class="mobile-overlay" onclick="toggleMobileMenu()"></div>
 
     <aside class="sidebar hidden" id="mainSidebar">
         <div class="sidebar-header">
@@ -763,6 +821,19 @@
 
     function performLogout() { if(confirm("Sign out?")) { sessionStorage.clear(); location.reload(); } }
 
+    /* Mobile Menu Toggle Logic */
+    function toggleMobileMenu() {
+        const sidebar = document.getElementById('mainSidebar');
+        const overlay = document.getElementById('mobileOverlay');
+        sidebar.classList.toggle('mobile-open');
+        
+        if(sidebar.classList.contains('mobile-open')) {
+            overlay.classList.add('show');
+        } else {
+            overlay.classList.remove('show');
+        }
+    }
+
     function switchTab(mode) {
         if (!currentUser) return;
         const role = currentUser.role || '';
@@ -776,6 +847,12 @@
         const menuId = 'menu' + mode.charAt(0).toUpperCase() + mode.slice(1);
         if(document.getElementById(menuId)) document.getElementById(menuId).classList.add('active');
         if(mode !== 'report') refreshData(mode);
+
+        // Auto-close menu on mobile after selection
+        if (window.innerWidth <= 850) {
+            document.getElementById('mainSidebar').classList.remove('mobile-open');
+            document.getElementById('mobileOverlay').classList.remove('show');
+        }
     }
 
     async function refreshData(mode) {
