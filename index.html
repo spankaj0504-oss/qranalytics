@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>QRlytics | Enterprise Audit</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- MODERN DESIGN SYSTEM --- */
+        :root { 
+            --brand-primary: #4f46e5; 
+            --brand-primary-hover: #4338ca;
+            --surface: #ffffff;
+            --background: #f8fafc; 
+            --text-main: #0f172a; 
+            --text-muted: #64748b; 
+            --border-color: #e2e8f0; 
+            
+            --success-green: #10b981; 
+            --danger-red: #ef4444;
+            --warning-orange: #f59e0b;
+            --accent-orange: #f39c12; 
+            
+            --primary-blue: #0f172a; 
+            
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+            --shadow-focus: 0 0 0 3px rgba(79, 70, 229, 0.2);
+            
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hidden { display: none !important; }
+        
+        body { 
+            background: var(--background); 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Loader */
+        #loginLoader {
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--brand-primary);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 0.8s linear infinite;
+            margin: 15px auto;
+            display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- LAYOUT --- */
+        .split-wrapper {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 65px);
+            overflow: hidden;
+        }
+
+        .side-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px;
+            position: relative;
+        }
+
+        /* --- FIXED HEADER --- */
+        .brand-header-row {
+            background: #28292b !important; 
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            align-items: center;
+            padding: 0 32px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            height: 65px;
+            z-index: 1001;
+            box-shadow: var(--shadow-sm);
+        }
+        .brand-header-row img { height: 32px; object-fit: contain; justify-self: start; }
+        .brand-header-row h1 { margin: 0; font-size: 16px; font-weight: 600; text-align: center; color: #ffffff;}
+        .header-right-brand { justify-self: end; }
+        
+        #logoutBtn {
+            background: rgba(255,255,255,0.1);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #ffffff;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+        }
+        #logoutBtn:hover { background: rgba(255,255,255,0.2); border-color: #fca5a5; }
+
+        /* --- FIXED SIDEBAR --- */
+        .sidebar {
+            flex: 0 0 260px;
+            background: #4f5051 !important; 
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            z-index: 10;
+            box-shadow: 4px 0 25px rgba(0,0,0,0.15);
+        }
+
+        .sidebar-header {
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header img {
+            width: 120px;
+            max-width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .sidebar-header h3 {
+            margin: 0;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .sidebar-menu { padding: 24px 12px; display: flex; flex-direction: column; gap: 4px; }
+        
+        .menu-item {
+            padding: 12px 16px;
+            color: #ffffff; 
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: var(--radius-md);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid transparent;
+        }
+        .menu-item:hover { 
+            background: rgba(255,255,255,0.1); 
+            color: var(--accent-orange); 
+        }
+        .menu-item.active {
+            background: rgba(255,255,255,0.1); 
+            color: var(--accent-orange); 
+            border-left: 4px solid var(--accent-orange);
+            font-weight: 600;
+        }
+
+        /* --- LOGIN HERO & UI --- */
+        .side-hero {
+            flex: 0 0 40%;
+            background: #4f5051 !important; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            color: white;
+            text-align: center;
+            z-index: 5;
+        }
+
+        .side-hero img { width: 80%; max-width: 220px; margin-bottom: 32px; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #loginSection {
+            margin-top: 10vh;
+            max-width: 400px;
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            padding: 48px;
+            animation: fadeUp 0.5s ease-out forwards;
+        }
+
+        .mobile-login-logo {
+            display: none;
+        }
+
+        /* --- COMPONENTS --- */
+        .container { 
+            width: 100%; 
+            max-width: 1000px; 
+            padding: 32px; 
+            border-radius: var(--radius-xl); 
+            background: var(--surface); 
+            box-shadow: var(--shadow-md); 
+            margin: 0 auto 32px auto; 
+            box-sizing: border-box;
+            border: 1px solid var(--border-color);
+        }
+
+        h2 { font-size: 24px; font-weight: 700; color: var(--text-main); margin: 0 0 24px 0; letter-spacing: -0.5px; }
+        h3 { font-size: 16px; font-weight: 600; color: var(--text-main); margin: 0 0 16px 0; }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        label { display: block; font-weight: 500; margin-bottom: 6px; color: var(--text-main); font-size: 13px; }
+        
+        input[type="text"], input[type="password"], select { 
+            width: 100%; 
+            padding: 12px 16px; 
+            border: 1px solid var(--border-color); 
+            border-radius: var(--radius-md); 
+            box-sizing: border-box; 
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            color: var(--text-main);
+            background: var(--surface);
+            transition: var(--transition);
+        }
+        input:focus, select:focus { 
+            border-color: var(--primary-blue); 
+            outline: none; 
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1); 
+        }
+        input[readonly] { background: var(--background); color: var(--text-muted); cursor: not-allowed; }
+
+        button { 
+            width: 100%; 
+            padding: 12px 24px; 
+            background: var(--primary-blue); 
+            color: white; 
+            border: none; 
+            border-radius: var(--radius-md); 
+            font-weight: 600; 
+            cursor: pointer; 
+            font-size: 14px; 
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        button:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+        button:active { transform: translateY(0); box-shadow: none; }
+        
+        .btn-secondary { background: var(--surface); color: var(--text-main); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
+        .btn-secondary:hover { background: var(--background); box-shadow: none; transform: none; filter: none;}
+        
+        .btn-danger { background: var(--danger-red); }
+        .btn-danger:hover { background: #dc2626; }
+        
+        .btn-success { background: var(--success-green); }
+        .btn-success:hover { background: #059669; }
+
+        .btn-reduced-70 { width: 70% !important; margin: 16px auto; display: block; }
+        .reduced-btn { width: auto; min-width: 200px; display: inline-flex; margin: 8px; }
+
+        .options-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+        .checkbox-item { 
+            display: flex; align-items: center; font-size: 13px; font-weight: 500;
+            background: var(--surface); padding: 12px 16px; 
+            border: 1px solid var(--border-color); border-radius: var(--radius-md); 
+            cursor: pointer; transition: var(--transition);
+        }
+        .checkbox-item:hover { border-color: var(--primary-blue); }
+        .checkbox-item input { margin-right: 12px; width: 16px; height: 16px; accent-color: var(--primary-blue); cursor: pointer; }
+
+        /* KPI Cards */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px; }
+        .kpi-card { 
+            background: var(--surface); padding: 24px; border-radius: var(--radius-xl); 
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);
+            display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden;
+            transition: var(--transition);
+        }
+        .kpi-card.clickable { cursor: pointer; }
+        .kpi-card.clickable:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--brand-primary); }
+        .kpi-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+        }
+        .kpi-card:nth-child(1)::before { background: var(--primary-blue); }
+        .kpi-card:nth-child(2)::before { background: var(--danger-red); }
+        .kpi-card:nth-child(3)::before { background: var(--success-green); }
+        
+        .kpi-card h3 { margin: 0; font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .kpi-card p { margin: 0; font-size: 36px; font-weight: 700; color: var(--primary-blue); letter-spacing: -1px; }
+
+        /* Issue Cards */
+        .issue-card { 
+            background: var(--surface); padding: 20px; border-radius: var(--radius-lg); 
+            margin-bottom: 16px; border: 1px solid var(--border-color); 
+            box-shadow: var(--shadow-sm); transition: var(--transition);
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .issue-card:hover { box-shadow: var(--shadow-md); border-color: #cbd5e1; }
+        
+        .issue-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .issue-title { font-size: 15px; font-weight: 600; color: var(--text-main); }
+        .issue-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 4px; display: block;}
+        
+        .badge { 
+            padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; 
+            letter-spacing: 0.5px; text-transform: uppercase; display: inline-block;
+        }
+        .badge-open { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .badge-closed { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+
+        .issue-body { font-size: 13px; color: var(--text-main); line-height: 1.5; }
+        .issue-meta { display: flex; gap: 16px; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 12px; flex-wrap: wrap;}
+        
+        /* Dashboard Charts */
+        .filter-row { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+            gap: 20px; background: var(--surface); padding: 24px; 
+            border-radius: var(--radius-xl); margin-bottom: 24px; 
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);
+        }
+        
+        .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+        .chart-box { 
+            background: var(--surface); padding: 24px; border-radius: var(--radius-xl); 
+            border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); 
+            height: 320px; display: flex; flex-direction: column; 
+        }
+        .chart-box h4 { margin:0 0 16px 0; font-size:14px; font-weight: 600; color: var(--text-main); flex-shrink: 0;}
+        .chart-container-inner { position: relative; flex: 1; min-height: 0; width: 100%; }
+
+        .photo-link { 
+            color: var(--primary-blue); text-decoration: none; cursor: pointer; 
+            font-size: 12px; font-weight: 600; padding: 6px 12px; 
+            border-radius: var(--radius-sm); background: #e2e8f0; transition: var(--transition);
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .photo-link:hover { background: #cbd5e1; }
+        
+        .preview-overlay { 
+            position: fixed; top:0; left:0; width:100%; height:100%; 
+            background: rgba(15, 23, 42, 0.8); z-index:9999; 
+            display:flex; justify-content:center; align-items:center; 
+            backdrop-filter: blur(8px); padding: 20px; box-sizing: border-box;
+        }
+        .image-modal {
+            width: 100%; max-width: 500px; height: 250px; 
+            background: #000; border-radius: var(--radius-lg); position: relative; 
+            display: flex; justify-content: center; align-items: center; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); overflow: hidden;
+        }
+        .image-modal img { max-width: 100%; max-height: 100%; object-fit: contain; transition: transform 0.3s ease; }
+        .modal-controls { position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; z-index: 10; }
+        .modal-btn {
+            background: rgba(15, 23, 42, 0.7); color: white; border: 1px solid rgba(255,255,255,0.2);
+            padding: 6px 12px; border-radius: var(--radius-sm); cursor: pointer; font-size: 12px; font-weight: 500;
+            backdrop-filter: blur(4px); margin: 0; width: auto;
+        }
+        .modal-btn:hover { background: rgba(15, 23, 42, 0.9); transform: none; }
+
+        .camera-box { 
+            text-align: center; margin: 24px 0; border: 2px dashed var(--border-color); 
+            padding: 32px; border-radius: var(--radius-lg); background: var(--background); transition: var(--transition);
+        }
+        .camera-box:hover { border-color: var(--primary-blue); }
+        #cameraPreview { width: 100%; max-width: 300px; border-radius: var(--radius-md); display: none; margin: 16px auto 0; box-shadow: var(--shadow-md); cursor: pointer;}
+        
+        .table-container { overflow-x: auto; width: 100%; border: 1px solid var(--border-color); border-radius: var(--radius-md); }
+        .dash-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        .dash-table th { background: var(--background); color: var(--text-muted); font-weight: 600; padding: 12px 16px; border-bottom: 1px solid var(--border-color); white-space: nowrap;}
+        .dash-table td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
+        .dash-table tr:last-child td { border-bottom: none; }
+        .dash-table tbody tr:hover { background: #f8fafc; }
+
+        .global-footer { 
+            background: #28292b !important; 
+            color: rgba(255,255,255,0.7); 
+            text-align: center; 
+            padding: 16px; 
+            font-size: 12px; 
+            z-index: 1001; 
+        }
+
+        #reader { width: 100%; max-width: 400px; margin: 0 auto; background: var(--sidebar-bg); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-lg);}
+        #qrBox { text-align: center; margin: 20px 0; }
+        #qrBox button { display: block; margin: 24px auto 0; width: 50%; }
+
+        .sub-nav-tabs { display: flex; gap: 8px; margin-bottom: 24px; background: var(--background); padding: 4px; border-radius: var(--radius-md); }
+        .sub-nav-btn { 
+            flex: 1; padding: 10px; margin: 0; background: transparent; color: var(--text-muted); 
+            box-shadow: none; border-radius: var(--radius-sm); font-weight: 600; 
+        }
+        .sub-nav-btn.active { background: var(--surface); color: var(--text-main); box-shadow: var(--shadow-sm); }
+        .sub-nav-btn:hover:not(.active) { background: rgba(0,0,0,0.02); box-shadow: none; transform: none;}
+
+        @media (max-width: 850px) {
+            .split-wrapper { flex-direction: column; height: calc(100vh - 65px); overflow: hidden; }
+            .side-hero { display: none; }
+            .sidebar { flex: 0 0 auto; width: 100%; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+            .sidebar-header { display: none; }
+            .sidebar-menu { flex-direction: row; padding: 8px; overflow-x: auto; gap: 8px; }
+            .menu-item { padding: 10px 16px; margin: 0; font-size: 13px; border-radius: var(--radius-sm); white-space: nowrap; flex: 1; justify-content: center; }
+            .menu-item.active { border-left: none; border-bottom: 3px solid var(--accent-orange); }
+            .side-content { padding: 16px; }
+            
+            /* Enhanced Mobile Login Card */
+            #loginSection { 
+                margin-top: 5vh; 
+                width: 100%; 
+                padding: 40px 24px; 
+                animation: none; 
+                border-radius: var(--radius-xl);
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+                border-top: 5px solid var(--brand-primary);
+                background: #ffffff;
+            }
+            .mobile-login-logo {
+                display: block;
+                margin: 0 auto 20px auto;
+                height: 54px;
+                object-fit: contain;
+            }
+
+            .container { padding: 20px; border-radius: var(--radius-lg);}
+            .form-grid { grid-template-columns: 1fr; gap: 12px; }
+            .btn-reduced-70, .btn-reduced-60 { width: 100% !important; }
+            .kpi-grid { grid-template-columns: 1fr; gap: 12px; margin-bottom: 16px;}
+            .chart-grid { grid-template-columns: 1fr; gap: 16px;}
+            .chart-box { height: 260px; padding: 16px;}
+            .options-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="brand-header-row hidden" id="topHeader">
+    <img src="logo2.png" id="dynamicLogo1" alt="Logo">
+    <h1 id="clientPortalName">Client Portal</h1>
+    <div class="header-right-brand">
+        <button id="logoutBtn" onclick="performLogout()">Sign Out</button>
+    </div>
+</header>
+
+<div class="split-wrapper" id="masterSplitWrapper">
+    <div class="side-hero" id="loginHero">
+        <img src="logo2.png" id="heroLogo" alt="Logo">
+        <h2 id="heroTitle" style="margin:0; font-weight:700; font-size: 28px; letter-spacing: -0.5px;">Quality Portal</h2>
+        <p id="heroSub" style="opacity:0.8; font-size:15px; margin-top: 12px; font-weight: 400;">Enterprise Management System</p>
+    </div>
+
+    <aside class="sidebar hidden" id="mainSidebar">
+        <div class="sidebar-header">
+            <img src="logo2.png" id="sidebarLogo" alt="Logo">
+            <h3>Enterprise Solution</h3>
+        </div>
+        <nav class="sidebar-menu">
+            <a class="menu-item active" id="menuReport" onclick="switchTab('report')">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                Report Audit
+            </a>
+            <a class="menu-item" id="menuClose" onclick="switchTab('close')">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                Issues List
+            </a>
+            <a class="menu-item" id="menuDash" onclick="switchTab('dash')">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+                Dashboard
+            </a>
+        </nav>
+    </aside>
+
+    <main class="side-content">
+        
+        <div id="loginSection" class="container">
+            <div style="text-align: center; margin-bottom: 32px;">
+                <img src="logo2.png" alt="QRlytics Logo" class="mobile-login-logo">
+                <h2 style="color: var(--text-main);">Welcome Back</h2>
+                <p style="color: var(--text-muted); font-size: 14px; margin-top: -16px;">Sign in to your enterprise workspace</p>
+            </div>
+
+            <label>Username</label>
+            <input type="text" id="username" placeholder="Enter your username">
+            
+            <label style="margin-top: 20px;">Password</label>
+            <input type="password" id="password" placeholder="Enter your password">
+            
+            <label style="display:flex; align-items:center; font-weight:500; gap:10px; margin-top:24px; font-size:13px; cursor:pointer;">
+                <input type="checkbox" id="rememberMe"> Remember my session
+            </label>
+
+            <button id="loginBtn" onclick="performLogin()" style="margin-top: 32px;">Sign In</button>
+            <div id="loginLoader"></div>
+            <p id="loginError" style="color: var(--danger-red); display:none; text-align:center; font-weight:500; font-size: 13px; margin-top:20px; background: #fef2f2; padding: 12px; border-radius: var(--radius-md); border: 1px solid #fecaca;">Access Denied. Please check your credentials.</p>
+        </div>
+
+        <div id="reportSection" class="container hidden">
+            <div id="qrInitial" style="text-align:center; padding: 20px 0;">
+                <h2>Asset Verification</h2>
+                <p style="color: var(--text-muted); font-size: 14px; margin-top: -16px; margin-bottom: 32px;">Scan an asset tag or enter details manually to begin audit.</p>
+                
+                <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+                    <button onclick="showScanner()" class="reduced-btn" style="background:var(--primary-blue);">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"></path></svg> 
+                        Scan QR Code
+                    </button>
+                    <button onclick="skipQR()" class="reduced-btn btn-secondary">
+                        Manual Entry
+                    </button>
+                </div>
+            </div>
+            
+            <div id="qrBox" class="hidden">
+                <div id="reader"></div>
+                <button onclick="cancelScanner()" class="btn-danger">Cancel Scan</button>
+            </div>
+            
+            <div id="formBox" class="hidden">
+                <h2 id="formTitle">Audit Details</h2>
+                <form id="monitoringForm">
+                    
+                    <div style="background: var(--background); padding: 20px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 24px;">
+                        <div class="form-grid">
+                            <div>
+                                <label id="lblAsset" style="margin-top:0;">Asset Code</label>
+                                <input type="text" id="Asset_Code" readonly>
+                            </div>
+                            <div>
+                                <label id="lblTerminal" style="margin-top:0;">Terminal</label>
+                                <input type="text" id="Terminal" readonly>
+                            </div>
+                        </div>
+                        <div class="form-grid" style="margin-top: 16px;">
+                            <div>
+                                <label id="lblPackage" style="margin-top:0;">Package</label>
+                                <input type="text" id="Package" readonly>
+                            </div>
+                            <div>
+                                <label id="lblMedia" style="margin-top:0;">Media Type</label>
+                                <input type="text" id="Media_Type" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Issue Classification</h3>
+                    <label style="margin-top: 0;">Select Issue Type</label>
+                    <div id="dynamicIssueTypes" class="options-grid"></div>
+                    
+                    <label style="margin-top: 24px;">Specific Description</label>
+                    <div id="dynamicIssueDesc" class="options-grid"></div>
+
+                    <div class="camera-box">
+                        <label style="margin-top: 0; margin-bottom: 8px;">Photographic Evidence</label>
+                        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px; margin-top: 0;">Upload or capture an image of the reported issue.</p>
+                        <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none;" onchange="handlePhoto(event)">
+                        <button type="button" onclick="document.getElementById('photoInput').click()" class="btn-reduced-60 btn-secondary">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                            Upload Photo
+                        </button>
+                        <img id="cameraPreview" onclick="showBigImage(this.src)">
+                    </div>
+
+                    <div class="form-grid" style="margin-top: 32px;">
+                        <button type="button" class="btn-secondary" style="margin:0;" onclick="resetToInitial()">Cancel</button>
+                        <button type="submit" id="submitBtn" class="btn-success" style="margin:0;">Submit Audit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="closeSection" class="container hidden" style="background: transparent; box-shadow: none; padding: 0; border: none;">
+            <div class="sub-nav-tabs">
+                <button id="btnOpen" class="sub-nav-btn active" onclick="setIssueView('open')">OPEN ISSUES</button>
+                <button id="btnClosed" class="sub-nav-btn" onclick="setIssueView('closed')">RESOLVED ISSUES</button>
+            </div>
+            <div id="issueList">
+                <div style="text-align:center; padding:40px; color:var(--text-muted);">Loading workspace data...</div>
+            </div>
+        </div>
+
+        <div id="dashSection" class="container hidden" style="background: transparent; box-shadow: none; padding: 0; border: none;">
+            
+            <div class="filter-row">
+                <div><label style="margin-top:0;">Terminal</label><select id="filterTerminal" onchange="applyFilters()"><option value="">All Regions</option></select></div>
+                <div><label style="margin-top:0;">Media Type</label><select id="filterMedia" onchange="applyFilters()"><option value="">All Types</option></select></div>
+                <div><label style="margin-top:0;">Package</label><select id="filterPackage" onchange="applyFilters()"><option value="">All Packages</option></select></div>
+                <div><label style="margin-top:0;">Asset Search</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" id="assetSearch" style="margin-top:0;" placeholder="Enter ID...">
+                        <button onclick="renderAssetTrend()" style="margin-top:0; width:auto; padding:0 20px;">Go</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card"><h3>Total Audits</h3><p id="kpiTotal">0</p></div>
+                <div class="kpi-card clickable" onclick="switchTab('close'); setIssueView('open');"><h3>Open Actions</h3><p id="kpiOpen">0</p></div>
+                <div class="kpi-card clickable" onclick="switchTab('close'); setIssueView('closed');"><h3>Resolved</h3><p id="kpiClosed">0</p></div>
+            </div>
+            
+            <div class="chart-box" id="historyContainer" style="margin-bottom: 24px; height: 350px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h4 id="trendTitle" style="margin:0;">Audit Log History</h4>
+                    <button onclick="exportAuditLog()" class="btn-secondary" style="width: auto; padding: 6px 16px; font-size: 12px; height: 32px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Export CSV
+                    </button>
+                </div>
+                <div id="historyContent" class="table-container"></div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-box">
+                    <h4>Activity Trends (Total vs Open vs Resolved)</h4>
+                    <div class="chart-container-inner"><canvas id="chartTrendLine"></canvas></div>
+                </div>
+                <div class="chart-box"><h4>Terminal Distribution</h4><div class="chart-container-inner"><canvas id="chartTerminal"></canvas></div></div>
+                <div class="chart-box"><h4>Issue Categorization</h4><div class="chart-container-inner"><canvas id="chartIssueType"></canvas></div></div>
+                <div class="chart-box"><h4>Media Type Spread</h4><div class="chart-container-inner"><canvas id="chartMedia"></canvas></div></div>
+                <div class="chart-box"><h4>Package Breakdown</h4><div class="chart-container-inner"><canvas id="chartPackage"></canvas></div></div>
+                <div class="chart-box"><h4>Reporter Activity</h4><div class="chart-container-inner"><canvas id="chartReportedBy"></canvas></div></div>
+                <div class="chart-box" style="grid-column: 1 / -1; height: 340px;"><h4>Detailed Analysis</h4><div class="chart-container-inner"><canvas id="chartDesc"></canvas></div></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<footer class="global-footer">
+    &copy; 2026 Powered by QRlytics | Designed & Developed By Pankaj Sharma
+</footer>
+
+<script>
+    Chart.register(ChartDataLabels);
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyjWv9Qvi212R7orV9kFGj3QRZlb60_UyewjPBQJvqmgq4E2hZc77iNbWlQKY3Ws07V/exec';
+    let currentUser = null, config = null, html5QrCode = null, rawData = [], currentView = 'open', dashboardCharts = {};
+    let currentPhotoBase64 = "";
+
+    function applyRoleAccess() {
+        if (!currentUser) return;
+        const role = currentUser.role || '';
+        const menuClose = document.getElementById('menuClose');
+        const menuDash = document.getElementById('menuDash');
+        if (menuClose) menuClose.style.display = role === 'OpsTeam' ? 'none' : 'flex';
+        if (menuDash) menuDash.style.display = (role === 'OpsTeam' || role === 'TL') ? 'none' : 'flex';
+    }
+
+    window.onload = () => {
+        const sessionData = sessionStorage.getItem('qrl_session');
+        if(sessionData) {
+            const data = JSON.parse(sessionData);
+            currentUser = data.user; config = data.config;
+            applyConfig(); applyRoleAccess();
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('loginHero').classList.add('hidden'); 
+            document.getElementById('topHeader').classList.remove('hidden');
+            document.getElementById('mainSidebar').classList.remove('hidden'); 
+            const lastSec = sessionStorage.getItem('qrl_section') || 'report';
+            switchTab(lastSec);
+        }
+    };
+
+    function getPendingTime(timestamp) {
+        if(!timestamp) return "N/A";
+        const diff = Math.abs(new Date() - new Date(timestamp));
+        const hours = Math.floor(diff / (1000 * 60 * 60)), mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        return `${hours}h ${mins}m`;
+    }
+
+    function handlePhoto(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            currentPhotoBase64 = e.target.result;
+            const preview = document.getElementById('cameraPreview');
+            preview.src = currentPhotoBase64; preview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function showBigImage(src) {
+        if(!src || src === "undefined" || src === "null") return;
+        let directSrc = src;
+        if (src.includes('drive.google.com')) {
+            const id = src.match(/[-\w]{25,}/);
+            if (id) directSrc = `https://drive.google.com/uc?export=view&id=${id[0]}`;
+        }
+        const overlay = document.createElement('div');
+        overlay.className = 'preview-overlay';
+        overlay.innerHTML = `<div class="image-modal" onclick="event.stopPropagation()">
+            <div class="modal-controls">
+                <button class="modal-btn" onclick="this.parentElement.parentElement.querySelector('img').style.transform += 'rotate(90deg)'">Rotate</button>
+                <button class="modal-btn" onclick="this.closest('.preview-overlay').remove()">Close</button>
+            </div>
+            <img src="${directSrc}" style="transition: transform 0.3s">
+        </div>`;
+        overlay.onclick = () => overlay.remove();
+        document.body.appendChild(overlay);
+    }
+
+    async function performLogin() {
+        const u = document.getElementById('username').value.trim(), p = document.getElementById('password').value;
+        if (u.toLowerCase() === 'admin' && p === 'admin') { window.location.href = 'admin.html'; return; }
+        document.getElementById('loginBtn').innerText = "Authenticating...";
+        document.getElementById('loginLoader').style.display = "block";
+        try {
+            const resp = await fetch(`${scriptURL}?action=login&u=${u}&p=${p}`);
+            const res = await resp.json();
+            if (res.success) {
+                if(document.getElementById('rememberMe').checked) {
+                    localStorage.setItem('qrl_u', u); localStorage.setItem('qrl_p', p);
+                }
+                currentUser = res.user; config = res.config;
+                sessionStorage.setItem('qrl_session', JSON.stringify({user: currentUser, config: config}));
+                sessionStorage.setItem('qrl_section', 'report');
+                location.reload();
+            } else { 
+                document.getElementById('loginError').style.display='block'; 
+                document.getElementById('loginBtn').innerText = "Sign In";
+                document.getElementById('loginLoader').style.display = "none";
+            }
+        } catch (e) { alert("Connection Error"); }
+    }
+
+    function applyConfig() {
+        if(!config) return;
+        document.getElementById('lblAsset').innerText = config.labelAsset || "Asset Code";
+        document.getElementById('clientPortalName').innerText = config.clientName;
+        if(config.logoUrl) {
+            document.getElementById('dynamicLogo1').src = config.logoUrl;
+            document.getElementById('heroLogo').src = config.logoUrl;
+            document.getElementById('sidebarLogo').src = config.logoUrl;
+        }
+        if(config.primaryColor) document.documentElement.style.setProperty('--primary-blue', config.primaryColor);
+        const typeBox = document.getElementById('dynamicIssueTypes'), descBox = document.getElementById('dynamicIssueDesc');
+        typeBox.innerHTML = ''; descBox.innerHTML = '';
+        (config.issueTypes||'').split(',').forEach(v => { if(v) typeBox.innerHTML += `<label class="checkbox-item"><input type="checkbox" name="Issue_Type" value="${v.trim()}">${v.trim()}</label>`; });
+        (config.issueDesc||'').split(',').forEach(v => { if(v) descBox.innerHTML += `<label class="checkbox-item"><input type="checkbox" name="Issue_Description" value="${v.trim()}">${v.trim()}</label>`; });
+    }
+
+    function performLogout() { if(confirm("Sign out?")) { sessionStorage.clear(); location.reload(); } }
+
+    function switchTab(mode) {
+        if (!currentUser) return;
+        const role = currentUser.role || '';
+        if (role === 'OpsTeam' && (mode === 'close' || mode === 'dash')) return;
+        if (role === 'TL' && mode === 'dash') return;
+
+        sessionStorage.setItem('qrl_section', mode);
+        document.querySelectorAll('.side-content > .container').forEach(c => c.classList.add('hidden'));
+        document.getElementById(mode + 'Section').classList.remove('hidden');
+        document.querySelectorAll('.menu-item').forEach(b => b.classList.remove('active'));
+        const menuId = 'menu' + mode.charAt(0).toUpperCase() + mode.slice(1);
+        if(document.getElementById(menuId)) document.getElementById(menuId).classList.add('active');
+        if(mode !== 'report') refreshData(mode);
+    }
+
+    async function refreshData(mode) {
+        const resp = await fetch(`${scriptURL}?action=getIssues&clientId=${currentUser.clientId}`);
+        rawData = await resp.json();
+        if(mode === 'dash') { updateFilterOptions(); renderDashboard(rawData); } 
+        else renderIssueList();
+    }
+
+    function updateFilterOptions() {
+        const populate = (id, key) => {
+            const vals = [...new Set(rawData.map(i => i[key]))].filter(Boolean);
+            document.getElementById(id).innerHTML = `<option value="">All</option>` + vals.map(v => `<option value="${v}">${v}</option>`).join('');
+        };
+        populate('filterTerminal', 'Terminal'); populate('filterMedia', 'Media_Type'); populate('filterPackage', 'Package');
+    }
+
+    function applyFilters() {
+        const ft = document.getElementById('filterTerminal').value, fm = document.getElementById('filterMedia').value, fp = document.getElementById('filterPackage').value;
+        const filtered = rawData.filter(i => (!ft || i.Terminal === ft) && (!fm || i.Media_Type === fm) && (!fp || i.Package === fp));
+        renderDashboard(filtered);
+    }
+
+    function renderAssetTrend() {
+        const code = document.getElementById('assetSearch').value.trim().toUpperCase();
+        const filtered = code ? rawData.filter(i => i.Asset_Code && i.Asset_Code.toString().toUpperCase() === code) : rawData;
+        renderDashboard(filtered, !!code, code);
+    }
+
+    function exportAuditLog() {
+        if(rawData.length === 0) return;
+        let csv = "Date,Asset Code,Terminal,Issue Type,Status,Duration,Reported By,Closed By\n";
+        rawData.forEach(row => {
+            csv += `"${new Date(row.Reported_Timestamp).toLocaleDateString()}","${row.Asset_Code}","${row.Terminal}","${row.Issue_Type}","${row.Current_Status}","${row.Closure_Duration || 'Pending'}","${row.Reported_By}","${row.Closed_By || ''}"\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('href', url);
+        a.setAttribute('download', `Audit_Log_${new Date().toLocaleDateString()}.csv`);
+        a.click();
+    }
+
+    function renderDashboard(dataToUse, isAsset = false, assetCode = "") {
+        document.getElementById('kpiTotal').innerText = dataToUse.length;
+        document.getElementById('kpiOpen').innerText = dataToUse.filter(i => (i.Current_Status||'').toLowerCase() !== 'closed').length;
+        document.getElementById('kpiClosed').innerText = dataToUse.filter(i => (i.Current_Status||'').toLowerCase() === 'closed').length;
+        const content = document.getElementById('historyContent');
+        if (dataToUse.length === 0) content.innerHTML = `<div style="text-align:center; padding: 20px;">No records.</div>`;
+        else {
+            let html = `<table class="dash-table"><thead><tr><th>Date</th><th>Asset</th><th>Issue</th><th>Status</th><th>Reported By</th></tr></thead><tbody>`;
+            [...dataToUse].reverse().forEach(row => {
+                html += `<tr><td>${new Date(row.Reported_Timestamp).toLocaleDateString()}</td><td><b>${row.Asset_Code}</b></td><td>${row.Issue_Type}</td><td>${row.Current_Status}</td><td>${row.Reported_By}</td></tr>`;
+            });
+            content.innerHTML = html + `</tbody></table>`;
+        }
+        const group = (key) => {
+            const counts = {};
+            dataToUse.forEach(i => { (i[key]||"Unknown").split(',').forEach(v => { const c = v.trim(); counts[c] = (counts[c] || 0) + 1; }); });
+            return counts;
+        };
+        const colors = ['#4f46e5', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#0ea5e9'];
+        createChart('chartTerminal', 'pie', group('Terminal'), colors);
+        createChart('chartIssueType', 'bar', group('Issue_Type'), colors, true);
+        createChart('chartMedia', 'doughnut', group('Media_Type'), colors);
+        createChart('chartPackage', 'pie', group('Package'), colors);
+        createChart('chartReportedBy', 'doughnut', group('Reported_By'), colors);
+        createChart('chartDesc', 'bar', group('Issue_Description'), colors);
+
+        const timeline = {};
+        dataToUse.forEach(i => {
+            const d = new Date(i.Reported_Timestamp).toLocaleDateString();
+            if(!timeline[d]) timeline[d] = { total: 0, open: 0, closed: 0 };
+            timeline[d].total++;
+            if((i.Current_Status||'').toLowerCase() === 'closed') timeline[d].closed++;
+            else timeline[d].open++;
+        });
+        const sortedDates = Object.keys(timeline).sort((a,b) => new Date(a) - new Date(b));
+        if(dashboardCharts['chartTrendLine']) dashboardCharts['chartTrendLine'].destroy();
+        dashboardCharts['chartTrendLine'] = new Chart(document.getElementById('chartTrendLine').getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: sortedDates,
+                datasets: [
+                    { label: 'Total', data: sortedDates.map(d => timeline[d].total), borderColor: '#4f46e5', tension: 0.3 },
+                    { label: 'Open', data: sortedDates.map(d => timeline[d].open), borderColor: '#ef4444', tension: 0.3 },
+                    { label: 'Resolved', data: sortedDates.map(d => timeline[d].closed), borderColor: '#10b981', tension: 0.3 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { datalabels: { display: false } } }
+        });
+    }
+
+    function createChart(id, type, dataObj, colors, isHorizontal = false) {
+        if(dashboardCharts[id]) dashboardCharts[id].destroy();
+        const ctx = document.getElementById(id);
+        if(!ctx) return;
+        dashboardCharts[id] = new Chart(ctx.getContext('2d'), {
+            type: type,
+            data: { labels: Object.keys(dataObj), datasets: [{ data: Object.values(dataObj), backgroundColor: colors, borderRadius: 6 }] },
+            options: {
+                indexAxis: isHorizontal ? 'y' : 'x',
+                responsive: true, maintainAspectRatio: false,
+                plugins: { 
+                    legend: { display: (type==='pie'||type==='doughnut'), position: 'right' },
+                    datalabels: { color: '#fff', formatter: v => v > 0 ? v : '' }
+                }
+            }
+        });
+    }
+
+    function showScanner() {
+        document.getElementById('qrInitial').classList.add('hidden');
+        document.getElementById('qrBox').classList.remove('hidden');
+        html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 220 }, (text) => {
+            const p = text.split('|');
+            document.getElementById('Asset_Code').value = p[0];
+            if(p[1]) document.getElementById('Terminal').value = p[1];
+            if(p[2]) document.getElementById('Package').value = p[2];
+            if(p[3]) document.getElementById('Media_Type').value = p[3];
+            html5QrCode.stop().then(() => {
+                document.getElementById('qrBox').classList.add('hidden');
+                document.getElementById('formBox').classList.remove('hidden');
+            });
+        }).catch(() => alert("Camera error"));
+    }
+
+    // --- UPDATED SUBMIT FUNCTION (EMAIL ONLY, NO WHATSAPP) ---
+    document.getElementById('monitoringForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const btn = document.getElementById('submitBtn'); 
+        btn.innerText = "Submitting & Sending Email...";
+        btn.disabled = true;
+        btn.style.opacity = "0.7";
+        
+        const types = Array.from(document.querySelectorAll('input[name="Issue_Type"]:checked')).map(c => c.value).join(', ');
+        const descs = Array.from(document.querySelectorAll('input[name="Issue_Description"]:checked')).map(c => c.value).join(', ');
+        
+        const payload = {
+            action: 'submitAudit', 
+            Asset_Code: document.getElementById('Asset_Code').value, 
+            Terminal: document.getElementById('Terminal').value,
+            Package: document.getElementById('Package').value, 
+            Media_Type: document.getElementById('Media_Type').value,
+            Issue_Type: types, 
+            Issue_Description: descs, 
+            User: currentUser.name, 
+            ClientId: currentUser.clientId, 
+            photoData: currentPhotoBase64
+        };
+        
+        try {
+            await fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) });
+            alert("Issue reported successfully! An email notification has been sent."); 
+            resetToInitial();
+        } catch(error) {
+            console.error("Submission failed:", error);
+            alert("Oops! Something went wrong. Please try again.");
+            btn.innerText = "Submit Audit";
+            btn.disabled = false;
+            btn.style.opacity = "1";
+        }
+    });
+    // -----------------------------------------------------------
+
+    function setIssueView(view) {
+        currentView = view;
+        document.getElementById('btnOpen').className = `sub-nav-btn ${view === 'open' ? 'active' : ''}`;
+        document.getElementById('btnClosed').className = `sub-nav-btn ${view === 'closed' ? 'active' : ''}`;
+        renderIssueList();
+    }
+
+    function renderIssueList() {
+        const list = document.getElementById('issueList');
+        let filtered = rawData.filter(i => {
+            const s = (i.Current_Status || "").toLowerCase();
+            return currentView === 'open' ? s !== 'closed' : s === 'closed';
+        });
+        filtered.reverse();
+        list.innerHTML = filtered.map(i => {
+            const isClosed = (i.Current_Status || "").toLowerCase() === 'closed';
+            return `<div class="issue-card">
+                <div class="issue-header">
+                    <div><span class="issue-title">${i.Asset_Code}</span><span class="issue-subtitle">${i.Terminal}</span></div>
+                    <span class="badge ${isClosed ? 'badge-closed' : 'badge-open'}">${i.Current_Status}</span>
+                </div>
+                <div class="issue-body">
+                    <b>Type:</b> ${i.Issue_Type}<br>
+                    <b>Reported By:</b> ${i.Reported_By}<br>
+                    ${isClosed ? `<b>Closed By:</b> ${i.Closed_By || 'N/A'}<br>` : ''}
+                    <span style="color:var(--text-muted);"><b>Desc:</b> ${i.Issue_Description || 'N/A'}</span>
+                    <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+                        ${i.Photo_URL ? `<a class="photo-link" onclick="showBigImage('${i.Photo_URL}')">Issue Photo</a>` : ''}
+                        ${isClosed && i.Closure_Photo_URL ? `<a class="photo-link" style="background:#ecfdf5; color:#059669;" onclick="showBigImage('${i.Closure_Photo_URL}')">Fix Photo</a>` : ''}
+                    </div>
+                </div>
+                <div class="issue-meta">
+                    <span><b>${isClosed ? 'Duration:' : 'Age:'}</b> ${isClosed ? i.Closure_Duration : getPendingTime(i.Reported_Timestamp)}</span>
+                    <span><b>Reported:</b> ${new Date(i.Reported_Timestamp).toLocaleDateString()}</span>
+                </div>
+                ${!isClosed ? `<button onclick="closeTicket(${i.rowId})" class="btn-success" style="margin-top:10px; padding:8px; font-size:12px;">RESOLVE TICKET</button>` : ''}
+            </div>`;
+        }).join('') || `<div style="text-align:center; padding:40px;">No records.</div>`;
+    }
+
+    async function closeTicket(id) {
+        const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.capture = 'environment';
+        input.onchange = async (e) => {
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                if(!confirm("Resolve?")) return;
+                await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action:'updateStatus', rowId: id, closedBy: currentUser.name, photoData: ev.target.result }) });
+                alert("Resolved"); refreshData('close');
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        };
+        input.click();
+    }
+
+    function resetToInitial() { location.reload(); }
+    function skipQR() { document.querySelectorAll('#formBox input').forEach(i => i.readOnly = false); document.getElementById('qrInitial').classList.add('hidden'); document.getElementById('formBox').classList.remove('hidden'); }
+    function cancelScanner() { if(html5QrCode) html5QrCode.stop(); resetToInitial(); }
+</script>
+</body>
+</html>
