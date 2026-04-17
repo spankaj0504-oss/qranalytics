@@ -37,6 +37,9 @@
             --shadow-focus: 0 0 0 3px rgba(79, 70, 229, 0.2);
             
             --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Responsive Header Variables */
+            --header-height: calc(65px + env(safe-area-inset-top, 0px));
         }
         
         .hidden { display: none !important; }
@@ -46,7 +49,8 @@
             font-family: 'Inter', sans-serif; 
             margin: 0; 
             padding: 0; 
-            height: 100vh;
+            height: 100vh; /* Fallback for older browsers */
+            height: 100dvh; /* Dynamic viewport height fixes mobile browser UI issues */
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -77,7 +81,7 @@
         .split-wrapper {
             display: flex;
             flex: 1;
-            height: calc(100vh - 65px);
+            min-height: 0; /* Lets Flexbox naturally manage available space */
             overflow: hidden;
             position: relative;
         }
@@ -95,9 +99,10 @@
             display: grid;
             grid-template-columns: 1fr 2fr 1fr;
             align-items: center;
-            padding: 0 32px;
+            padding: env(safe-area-inset-top, 0px) 32px 0 32px;
+            height: var(--header-height);
+            box-sizing: border-box;
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            height: 65px;
             z-index: 1001;
             box-shadow: var(--shadow-sm);
         }
@@ -424,18 +429,19 @@
 
         /* Mobile specific styling overriding desktop layout */
         @media (max-width: 850px) {
-            .split-wrapper { flex-direction: column; height: calc(100vh - 65px); overflow: hidden; }
+            .split-wrapper { flex-direction: column; }
             .side-hero { display: none; }
             
-            .brand-header-row { padding: 0 16px; grid-template-columns: auto 1fr auto; }
+            .brand-header-row { padding: env(safe-area-inset-top, 0px) 16px 0 16px; grid-template-columns: auto 1fr auto; }
             .mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
 
             /* Modern Mobile Slide-out Menu */
             .sidebar { 
                 position: fixed; 
-                top: 65px; 
+                top: var(--header-height); 
                 left: -260px; 
-                height: calc(100vh - 65px); 
+                height: calc(100vh - 65px); /* Fallback */
+                height: calc(100dvh - var(--header-height)); 
                 width: 260px;
                 z-index: 1002; 
                 transition: left 0.3s ease; 
@@ -463,10 +469,11 @@
             .mobile-overlay {
                 display: block; 
                 position: fixed; 
-                top: 65px; 
+                top: var(--header-height); 
                 left: 0; 
                 width: 100%; 
-                height: calc(100vh - 65px);
+                height: calc(100vh - 65px); /* Fallback */
+                height: calc(100dvh - var(--header-height));
                 background: rgba(15, 23, 42, 0.6); 
                 z-index: 1001; 
                 backdrop-filter: blur(2px);
