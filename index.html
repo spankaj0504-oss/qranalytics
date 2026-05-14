@@ -49,8 +49,8 @@
             font-family: 'Inter', sans-serif; 
             margin: 0; 
             padding: 0; 
-            height: 100vh; /* Fallback for older browsers */
-            height: 100dvh; /* Dynamic viewport height fixes mobile browser UI issues */
+            height: 100vh; 
+            height: 100dvh; 
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -58,13 +58,11 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* Loader */
         #loginLoader {
             border: 3px solid var(--border-color);
             border-top: 3px solid var(--brand-primary);
@@ -77,23 +75,9 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- LAYOUT --- */
-        .split-wrapper {
-            display: flex;
-            flex: 1;
-            min-height: 0; /* Lets Flexbox naturally manage available space */
-            overflow: hidden;
-            position: relative;
-        }
+        .split-wrapper { display: flex; flex: 1; min-height: 0; overflow: hidden; position: relative; }
+        .side-content { flex: 1; overflow-y: auto; padding: 32px; position: relative; }
 
-        .side-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 32px;
-            position: relative;
-        }
-
-        /* --- FIXED HEADER --- */
         .brand-header-row {
             background: #28292b !important; 
             display: grid;
@@ -123,11 +107,9 @@
         }
         #logoutBtn:hover { background: rgba(255,255,255,0.2); border-color: #fca5a5; }
 
-        /* Mobile Menu Button */
         .mobile-menu-btn { display: none; background: transparent; border: none; padding: 0; cursor: pointer; margin: 0; }
         .mobile-overlay { display: none; }
 
-        /* --- FIXED SIDEBAR --- */
         .sidebar {
             flex: 0 0 260px;
             background: #4f5051 !important; 
@@ -146,21 +128,8 @@
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
-        .sidebar-header img {
-            width: 120px;
-            max-width: 100%;
-            margin-bottom: 16px;
-        }
-
-        .sidebar-header h3 {
-            margin: 0;
-            color: white;
-            font-size: 14px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
+        .sidebar-header img { width: 120px; max-width: 100%; margin-bottom: 16px; }
+        .sidebar-header h3 { margin: 0; color: white; font-size: 14px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
         .sidebar-menu { padding: 24px 12px; display: flex; flex-direction: column; gap: 4px; }
         
         .menu-item {
@@ -177,18 +146,9 @@
             gap: 12px;
             border-left: 4px solid transparent;
         }
-        .menu-item:hover { 
-            background: rgba(255,255,255,0.1); 
-            color: var(--accent-orange); 
-        }
-        .menu-item.active {
-            background: rgba(255,255,255,0.1); 
-            color: var(--accent-orange); 
-            border-left: 4px solid var(--accent-orange);
-            font-weight: 600;
-        }
+        .menu-item:hover { background: rgba(255,255,255,0.1); color: var(--accent-orange); }
+        .menu-item.active { background: rgba(255,255,255,0.1); color: var(--accent-orange); border-left: 4px solid var(--accent-orange); font-weight: 600; }
 
-        /* --- LOGIN HERO & UI --- */
         .side-hero {
             flex: 0 0 40%;
             background: #4f5051 !important; 
@@ -220,11 +180,8 @@
             animation: fadeUp 0.5s ease-out forwards;
         }
 
-        .mobile-login-logo {
-            display: none;
-        }
+        .mobile-login-logo { display: none; }
 
-        /* --- COMPONENTS --- */
         .container { 
             width: 100%; 
             max-width: 1000px; 
@@ -303,7 +260,6 @@
         .checkbox-item:hover { border-color: var(--primary-blue); }
         .checkbox-item input { margin-right: 12px; width: 16px; height: 16px; accent-color: var(--primary-blue); cursor: pointer; }
 
-        /* KPI Cards */
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px; }
         .kpi-card { 
             background: var(--surface); padding: 24px; border-radius: var(--radius-xl); 
@@ -313,17 +269,13 @@
         }
         .kpi-card.clickable { cursor: pointer; }
         .kpi-card.clickable:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--brand-primary); }
-        .kpi-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
-        }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; }
         .kpi-card:nth-child(1)::before { background: var(--primary-blue); }
         .kpi-card:nth-child(2)::before { background: var(--danger-red); }
         .kpi-card:nth-child(3)::before { background: var(--success-green); }
-        
         .kpi-card h3 { margin: 0; font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
         .kpi-card p { margin: 0; font-size: 36px; font-weight: 700; color: var(--primary-blue); letter-spacing: -1px; }
 
-        /* Issue Cards */
         .issue-card { 
             background: var(--surface); padding: 20px; border-radius: var(--radius-lg); 
             margin-bottom: 16px; border: 1px solid var(--border-color); 
@@ -332,13 +284,15 @@
         }
         .issue-card:hover { box-shadow: var(--shadow-md); border-color: #cbd5e1; }
         
-        .issue-header { display: flex; justify-content: space-between; align-items: flex-start; }
-        .issue-title { font-size: 15px; font-weight: 600; color: var(--text-main); }
+        .issue-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: nowrap; }
+        .issue-title-group { flex: 1; min-width: 0; }
+        .issue-title { font-size: 15px; font-weight: 600; color: var(--text-main); word-wrap: break-word; display: block;}
         .issue-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 4px; display: block;}
         
         .badge { 
             padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; 
             letter-spacing: 0.5px; text-transform: uppercase; display: inline-block;
+            white-space: nowrap; flex-shrink: 0;
         }
         .badge-open { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
         .badge-closed { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
@@ -346,7 +300,6 @@
         .issue-body { font-size: 13px; color: var(--text-main); line-height: 1.5; }
         .issue-meta { display: flex; gap: 16px; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 12px; flex-wrap: wrap;}
         
-        /* Dashboard Charts */
         .filter-row { 
             display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
             gap: 20px; background: var(--surface); padding: 24px; 
@@ -427,7 +380,6 @@
         .sub-nav-btn.active { background: var(--surface); color: var(--text-main); box-shadow: var(--shadow-sm); }
         .sub-nav-btn:hover:not(.active) { background: rgba(0,0,0,0.02); box-shadow: none; transform: none;}
 
-        /* Mobile specific styling overriding desktop layout */
         @media (max-width: 850px) {
             .split-wrapper { flex-direction: column; }
             .side-hero { display: none; }
@@ -435,12 +387,11 @@
             .brand-header-row { padding: env(safe-area-inset-top, 0px) 16px 0 16px; grid-template-columns: auto 1fr auto; }
             .mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
 
-            /* Modern Mobile Slide-out Menu */
             .sidebar { 
                 position: fixed; 
                 top: var(--header-height); 
                 left: -260px; 
-                height: calc(100vh - 65px); /* Fallback */
+                height: calc(100vh - 65px); 
                 height: calc(100dvh - var(--header-height)); 
                 width: 260px;
                 z-index: 1002; 
@@ -465,14 +416,13 @@
                 background: rgba(255,255,255,0.1);
             }
             
-            /* Overlay when mobile menu is open */
             .mobile-overlay {
                 display: block; 
                 position: fixed; 
                 top: var(--header-height); 
                 left: 0; 
                 width: 100%; 
-                height: calc(100vh - 65px); /* Fallback */
+                height: calc(100vh - 65px); 
                 height: calc(100dvh - var(--header-height));
                 background: rgba(15, 23, 42, 0.6); 
                 z-index: 1001; 
@@ -485,7 +435,6 @@
 
             .side-content { padding: 16px; }
             
-            /* Enhanced Mobile Login Card */
             #loginSection { 
                 margin-top: 5vh; 
                 width: 100%; 
@@ -496,12 +445,7 @@
                 border-top: 5px solid var(--brand-primary);
                 background: #ffffff;
             }
-            .mobile-login-logo {
-                display: block;
-                margin: 0 auto 20px auto;
-                height: 54px;
-                object-fit: contain;
-            }
+            .mobile-login-logo { display: block; margin: 0 auto 20px auto; height: 54px; object-fit: contain; }
 
             .container { padding: 20px; border-radius: var(--radius-lg);}
             .form-grid { grid-template-columns: 1fr; gap: 12px; }
@@ -722,6 +666,42 @@
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyjWv9Qvi212R7orV9kFGj3QRZlb60_UyewjPBQJvqmgq4E2hZc77iNbWlQKY3Ws07V/exec';
     let currentUser = null, config = null, html5QrCode = null, rawData = [], currentView = 'open', dashboardCharts = {};
     let currentPhotoBase64 = "";
+    
+    let dynamicIssueMapping = {};
+
+    function compressImage(file, maxWidth, maxHeight, quality, callback) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+                } else {
+                    if (height > maxHeight) {
+                        width = Math.round((width * maxHeight) / height);
+                        height = maxHeight;
+                    }
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+                callback(compressedBase64);
+            };
+        };
+    }
 
     function applyRoleAccess() {
         if (!currentUser) return;
@@ -757,33 +737,39 @@
     function handlePhoto(event) {
         const file = event.target.files[0];
         if(!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            currentPhotoBase64 = e.target.result;
+        
+        compressImage(file, 1024, 1024, 0.7, (compressedBase64) => {
+            currentPhotoBase64 = compressedBase64;
             const preview = document.getElementById('cameraPreview');
-            preview.src = currentPhotoBase64; preview.style.display = "block";
-        };
-        reader.readAsDataURL(file);
+            preview.src = currentPhotoBase64; 
+            preview.style.display = "block";
+        });
     }
 
     function showBigImage(src) {
         if(!src || src === "undefined" || src === "null") return;
-        let directSrc = src;
-        if (src.includes('drive.google.com')) {
-            const id = src.match(/[-\w]{25,}/);
-            if (id) directSrc = `https://drive.google.com/uc?export=view&id=${id[0]}`;
+
+        if (src.startsWith('data:image') || src.startsWith('blob:')) {
+            const overlay = document.createElement('div');
+            overlay.className = 'preview-overlay';
+            overlay.innerHTML = `<div class="image-modal" onclick="event.stopPropagation()">
+                <div class="modal-controls">
+                    <button class="modal-btn" onclick="this.parentElement.parentElement.querySelector('img').style.transform += 'rotate(90deg)'">Rotate</button>
+                    <button class="modal-btn" onclick="this.closest('.preview-overlay').remove()">Close</button>
+                </div>
+                <img src="${src}" style="transition: transform 0.3s">
+            </div>`;
+            overlay.onclick = () => overlay.remove();
+            document.body.appendChild(overlay);
+        } 
+        else {
+            let directSrc = src;
+            if (src.includes('drive.google.com')) {
+                const id = src.match(/[-\w]{25,}/);
+                if (id) directSrc = `https://drive.google.com/file/d/${id[0]}/view`;
+            }
+            window.open(directSrc, '_blank');
         }
-        const overlay = document.createElement('div');
-        overlay.className = 'preview-overlay';
-        overlay.innerHTML = `<div class="image-modal" onclick="event.stopPropagation()">
-            <div class="modal-controls">
-                <button class="modal-btn" onclick="this.parentElement.parentElement.querySelector('img').style.transform += 'rotate(90deg)'">Rotate</button>
-                <button class="modal-btn" onclick="this.closest('.preview-overlay').remove()">Close</button>
-            </div>
-            <img src="${directSrc}" style="transition: transform 0.3s">
-        </div>`;
-        overlay.onclick = () => overlay.remove();
-        document.body.appendChild(overlay);
     }
 
     async function performLogin() {
@@ -810,25 +796,48 @@
         } catch (e) { alert("Connection Error"); }
     }
 
+    window.populateDescriptions = function(selectedType) {
+        const descBox = document.getElementById('dynamicIssueDesc');
+        descBox.innerHTML = ''; 
+        
+        if (dynamicIssueMapping[selectedType]) {
+            dynamicIssueMapping[selectedType].forEach(desc => {
+                descBox.innerHTML += `<label class="checkbox-item"><input type="radio" name="Issue_Description" value="${desc}">${desc}</label>`;
+            });
+        }
+    };
+
     function applyConfig() {
         if(!config) return;
         document.getElementById('lblAsset').innerText = config.labelAsset || "Asset Code";
         document.getElementById('clientPortalName').innerText = config.clientName;
+        
         if(config.logoUrl) {
             document.getElementById('dynamicLogo1').src = config.logoUrl;
             document.getElementById('heroLogo').src = config.logoUrl;
             document.getElementById('sidebarLogo').src = config.logoUrl;
         }
         if(config.primaryColor) document.documentElement.style.setProperty('--primary-blue', config.primaryColor);
-        const typeBox = document.getElementById('dynamicIssueTypes'), descBox = document.getElementById('dynamicIssueDesc');
-        typeBox.innerHTML = ''; descBox.innerHTML = '';
-        (config.issueTypes||'').split(',').forEach(v => { if(v) typeBox.innerHTML += `<label class="checkbox-item"><input type="checkbox" name="Issue_Type" value="${v.trim()}">${v.trim()}</label>`; });
-        (config.issueDesc||'').split(',').forEach(v => { if(v) descBox.innerHTML += `<label class="checkbox-item"><input type="checkbox" name="Issue_Description" value="${v.trim()}">${v.trim()}</label>`; });
-    }
+        
+        try {
+            dynamicIssueMapping = JSON.parse(config.issueDesc);
+        } catch(e) {
+            dynamicIssueMapping = { "General Issue": ["No description found. Please update Admin Config."] };
+        }
 
+        const typeBox = document.getElementById('dynamicIssueTypes');
+        const descBox = document.getElementById('dynamicIssueDesc');
+        
+        typeBox.innerHTML = ''; 
+        descBox.innerHTML = ''; 
+
+        Object.keys(dynamicIssueMapping).forEach(type => {
+            typeBox.innerHTML += `<label class="checkbox-item"><input type="radio" name="Issue_Type" value="${type}" onchange="populateDescriptions('${type}')">${type}</label>`;
+        });
+    }
+	
     function performLogout() { if(confirm("Sign out?")) { sessionStorage.clear(); location.reload(); } }
 
-    /* Mobile Menu Toggle Logic */
     function toggleMobileMenu() {
         const sidebar = document.getElementById('mainSidebar');
         const overlay = document.getElementById('mobileOverlay');
@@ -855,7 +864,6 @@
         if(document.getElementById(menuId)) document.getElementById(menuId).classList.add('active');
         if(mode !== 'report') refreshData(mode);
 
-        // Auto-close menu on mobile after selection
         if (window.innerWidth <= 850) {
             document.getElementById('mainSidebar').classList.remove('mobile-open');
             document.getElementById('mobileOverlay').classList.remove('show');
@@ -988,17 +996,21 @@
         }).catch(() => alert("Camera error"));
     }
 
-    // --- UPDATED SUBMIT FUNCTION (EMAIL ONLY, NO WHATSAPP) ---
     document.getElementById('monitoringForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
+        const typeInput = document.querySelector('input[name="Issue_Type"]:checked');
+        const descInput = document.querySelector('input[name="Issue_Description"]:checked');
+        
+        if (!typeInput || !descInput) {
+            alert("Please select exactly one Issue Type and one Specific Description.");
+            return;
+        }
+
         const btn = document.getElementById('submitBtn'); 
         btn.innerText = "Submitting & Sending Email...";
         btn.disabled = true;
         btn.style.opacity = "0.7";
-        
-        const types = Array.from(document.querySelectorAll('input[name="Issue_Type"]:checked')).map(c => c.value).join(', ');
-        const descs = Array.from(document.querySelectorAll('input[name="Issue_Description"]:checked')).map(c => c.value).join(', ');
         
         const payload = {
             action: 'submitAudit', 
@@ -1006,26 +1018,28 @@
             Terminal: document.getElementById('Terminal').value,
             Package: document.getElementById('Package').value, 
             Media_Type: document.getElementById('Media_Type').value,
-            Issue_Type: types, 
-            Issue_Description: descs, 
+            Issue_Type: typeInput.value,           
+            Issue_Description: descInput.value,    
             User: currentUser.name, 
             ClientId: currentUser.clientId, 
             photoData: currentPhotoBase64
         };
         
         try {
-            await fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) });
+            const response = await fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) });
+            const resData = await response.json();
+            if (!resData.success) throw new Error(resData.error || "Submission failed");
+
             alert("Issue reported successfully! An email notification has been sent."); 
             resetToInitial();
         } catch(error) {
             console.error("Submission failed:", error);
-            alert("Oops! Something went wrong. Please try again.");
+            alert("Oops! Something went wrong. " + (error.message || "Please try again."));
             btn.innerText = "Submit Audit";
             btn.disabled = false;
             btn.style.opacity = "1";
         }
     });
-    // -----------------------------------------------------------
 
     function setIssueView(view) {
         currentView = view;
@@ -1045,14 +1059,18 @@
             const isClosed = (i.Current_Status || "").toLowerCase() === 'closed';
             return `<div class="issue-card">
                 <div class="issue-header">
-                    <div><span class="issue-title">${i.Asset_Code}</span><span class="issue-subtitle">${i.Terminal}</span></div>
+                    <div class="issue-title-group">
+                        <span class="issue-title">${i.Ticket_ID} - ${i.Asset_Code}</span>
+                        <span class="issue-subtitle">${i.Terminal}</span>
+                    </div>
                     <span class="badge ${isClosed ? 'badge-closed' : 'badge-open'}">${i.Current_Status}</span>
                 </div>
                 <div class="issue-body">
                     <b>Type:</b> ${i.Issue_Type}<br>
                     <b>Reported By:</b> ${i.Reported_By}<br>
                     ${isClosed ? `<b>Closed By:</b> ${i.Closed_By || 'N/A'}<br>` : ''}
-                    <span style="color:var(--text-muted);"><b>Desc:</b> ${i.Issue_Description || 'N/A'}</span>
+                    <span style="color:var(--text-muted);"><b>Desc:</b> ${i.Issue_Description || 'N/A'}</span><br>
+                    ${isClosed && i.Remarks ? `<span style="color:var(--text-muted);"><b>Remarks:</b> ${i.Remarks}</span>` : ''}
                     <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
                         ${i.Photo_URL ? `<a class="photo-link" onclick="showBigImage('${i.Photo_URL}')">Issue Photo</a>` : ''}
                         ${isClosed && i.Closure_Photo_URL ? `<a class="photo-link" style="background:#ecfdf5; color:#059669;" onclick="showBigImage('${i.Closure_Photo_URL}')">Fix Photo</a>` : ''}
@@ -1062,23 +1080,82 @@
                     <span><b>${isClosed ? 'Duration:' : 'Age:'}</b> ${isClosed ? i.Closure_Duration : getPendingTime(i.Reported_Timestamp)}</span>
                     <span><b>Reported:</b> ${new Date(i.Reported_Timestamp).toLocaleDateString()}</span>
                 </div>
-                ${!isClosed ? `<button onclick="closeTicket(${i.rowId})" class="btn-success" style="margin-top:10px; padding:8px; font-size:12px;">RESOLVE TICKET</button>` : ''}
+                ${!isClosed ? `
+                <div style="margin-top:12px;">
+                    <button onclick="toggleResolveBox(${i.rowId})" class="btn-secondary" style="width:100%; padding:8px; font-size:12px; border-color: var(--success-green); color: var(--success-green);">RESOLVE TICKET</button>
+                    <div id="resolve-box-${i.rowId}" style="display:none; margin-top: 12px; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <label style="font-size:12px; margin-bottom:4px; margin-top:0;">Closing Remarks</label>
+                        <textarea id="remarks-${i.rowId}" placeholder="Enter resolution remarks..." style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:4px; margin-bottom:12px; font-family:inherit; font-size:13px; resize:vertical; min-height:60px; box-sizing:border-box;"></textarea>
+                        
+                        <label style="font-size:12px; margin-bottom:4px;">Proof of Resolution (Optional if remarks provided)</label>
+                        <input type="file" id="close-photo-${i.rowId}" accept="image/*" capture="environment" style="display:block; margin-bottom:16px; font-size:12px; width:100%;">
+                        
+                        <div style="display:flex; gap:8px;">
+                            <button onclick="submitClose(${i.rowId})" class="btn-success" style="flex:1; padding:8px; font-size:12px;" id="btn-submit-${i.rowId}">Submit</button>
+                            <button onclick="toggleResolveBox(${i.rowId})" class="btn-secondary" style="flex:1; padding:8px; font-size:12px;">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
             </div>`;
         }).join('') || `<div style="text-align:center; padding:40px;">No records.</div>`;
     }
 
-    async function closeTicket(id) {
-        const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*'; input.capture = 'environment';
-        input.onchange = async (e) => {
-            const reader = new FileReader();
-            reader.onload = async (ev) => {
-                if(!confirm("Resolve?")) return;
-                await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action:'updateStatus', rowId: id, closedBy: currentUser.name, photoData: ev.target.result }) });
-                alert("Resolved"); refreshData('close');
-            };
-            reader.readAsDataURL(e.target.files[0]);
+    function toggleResolveBox(id) {
+        const box = document.getElementById(`resolve-box-${id}`);
+        box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
+
+    async function submitClose(id) {
+        const remarksInput = document.getElementById(`remarks-${id}`).value.trim();
+        const fileInput = document.getElementById(`close-photo-${id}`);
+        const file = fileInput.files[0];
+
+        if (!remarksInput && !file) {
+            alert("Please provide either closing remarks or upload a photo to resolve this ticket.");
+            return;
+        }
+
+        if (!confirm("Are you sure you want to resolve this ticket?")) return;
+
+        const btn = document.getElementById(`btn-submit-${id}`);
+        btn.innerText = "Resolving...";
+        btn.disabled = true;
+        btn.style.opacity = "0.7";
+
+        const processSubmission = async (base64Data) => {
+            try {
+                const response = await fetch(scriptURL, { 
+                    method: 'POST', 
+                    body: JSON.stringify({ 
+                        action: 'updateStatus', 
+                        rowId: id, 
+                        clientId: currentUser.clientId, 
+                        closedBy: currentUser.name, 
+                        remarks: remarksInput,
+                        photoData: base64Data 
+                    }) 
+                });
+                
+                const resData = await response.json();
+                if (!resData.success) throw new Error(resData.error || "Server rejected request");
+
+                alert("Ticket Resolved Successfully!"); 
+                refreshData('close');
+            } catch (err) {
+                console.error("Resolution Error:", err);
+                alert("Failed to resolve ticket. " + (err.message || "Please try again."));
+                btn.innerText = "Submit";
+                btn.disabled = false;
+                btn.style.opacity = "1";
+            }
         };
-        input.click();
+
+        if (file) {
+            compressImage(file, 1024, 1024, 0.7, processSubmission);
+        } else {
+            processSubmission("");
+        }
     }
 
     function resetToInitial() { location.reload(); }
