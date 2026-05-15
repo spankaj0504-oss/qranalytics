@@ -774,7 +774,7 @@
 
     async function performLogin() {
         const u = document.getElementById('username').value.trim(), p = document.getElementById('password').value;
-        if (u.toLowerCase() === 'admin' && p === 'admin') { window.location.href = 'admin.html'; return; }
+        if (u.toLowerCase() === 'admin' && p === 'Tim@654321') { window.location.href = 'admin.html'; return; }
         document.getElementById('loginBtn').innerText = "Authenticating...";
         document.getElementById('loginLoader').style.display = "block";
         try {
