@@ -7,17 +7,19 @@
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- MODERN DESIGN SYSTEM --- */
+        /* --- PREMIUM DESIGN SYSTEM --- */
         :root { 
             --brand-primary: #4f46e5; 
             --brand-primary-hover: #4338ca;
-            --surface: #ffffff;
-            --background: #f8fafc; 
+            --surface: rgba(255, 255, 255, 0.85);
+            --background: #f1f5f9; 
             --text-main: #0f172a; 
             --text-muted: #64748b; 
-            --border-color: #e2e8f0; 
+            --border-color: rgba(226, 232, 240, 0.7); 
             
             --success-green: #10b981; 
             --danger-red: #ef4444;
@@ -25,21 +27,28 @@
             --accent-orange: #f39c12; 
             
             --primary-blue: #0f172a; 
+            --gradient-primary: linear-gradient(135deg, #4f46e5, #8b5cf6);
             
-            --radius-sm: 6px;
-            --radius-md: 8px;
-            --radius-lg: 12px;
-            --radius-xl: 16px;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
             
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
-            --shadow-focus: 0 0 0 3px rgba(79, 70, 229, 0.2);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-focus: 0 0 0 4px rgba(79, 70, 229, 0.2);
             
-            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
-            /* Responsive Header Variables */
-            --header-height: calc(65px + env(safe-area-inset-top, 0px));
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --header-height: calc(70px + env(safe-area-inset-top, 0px));
+        }
+        
+        .glass-panel {
+            background: var(--surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
         }
         
         .hidden { display: none !important; }
@@ -107,7 +116,7 @@
         }
         #logoutBtn:hover { background: rgba(255,255,255,0.2); border-color: #fca5a5; }
 
-        .mobile-menu-btn { display: none; background: transparent; border: none; padding: 0; cursor: pointer; margin: 0; }
+        .mobile-menu-btn { display: flex; align-items: center; justify-content: center; background: transparent; border: none; padding: 0; cursor: pointer; margin: 0; }
         .mobile-overlay { display: none; }
 
         .sidebar {
@@ -118,7 +127,10 @@
             transition: var(--transition);
             z-index: 10;
             box-shadow: 4px 0 25px rgba(0,0,0,0.15);
+            overflow: hidden;
+            white-space: nowrap;
         }
+        .sidebar.collapsed { flex: 0 0 0px !important; width: 0 !important; min-width: 0 !important; opacity: 0; }
 
         .sidebar-header {
             padding: 32px 24px;
@@ -171,23 +183,48 @@
 
         #loginSection {
             margin-top: 10vh;
-            max-width: 400px;
-            background: var(--surface);
-            border: 1px solid var(--border-color);
+            max-width: 420px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
             border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
             padding: 48px;
-            animation: fadeUp 0.5s ease-out forwards;
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
+
+        .portal-card {
+            background: rgba(226, 232, 240, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: var(--radius-xl);
+            padding: 32px 24px;
+            width: 260px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .portal-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); border-color: var(--brand-primary); }
+        .portal-icon { width: 72px; height: 72px; border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; box-shadow: var(--shadow-sm); }
+        .portal-card h3 { font-size: 22px; margin: 0 0 12px 0; color: var(--text-main); font-weight: 700; letter-spacing:-0.5px;}
+        .portal-card p { font-size: 14px; color: var(--text-muted); margin: 0; line-height: 1.6; }
 
         .mobile-login-logo { display: none; }
 
         .container { 
             width: 100%; 
-            max-width: 1000px; 
-            padding: 32px; 
+            max-width: 1100px; 
+            padding: 40px; 
             border-radius: var(--radius-xl); 
-            background: var(--surface); 
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             box-shadow: var(--shadow-md); 
             margin: 0 auto 32px auto; 
             box-sizing: border-box;
@@ -221,8 +258,8 @@
 
         button { 
             width: 100%; 
-            padding: 12px 24px; 
-            background: var(--primary-blue); 
+            padding: 14px 24px; 
+            background: var(--gradient-primary); 
             color: white; 
             border: none; 
             border-radius: var(--radius-md); 
@@ -234,12 +271,13 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
         }
-        button:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: var(--shadow-md); }
-        button:active { transform: translateY(0); box-shadow: none; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 8px 16px rgba(79, 70, 229, 0.4); filter: brightness(1.1); }
+        button:active { transform: translateY(0); box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3); filter: brightness(1); }
         
-        .btn-secondary { background: var(--surface); color: var(--text-main); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
-        .btn-secondary:hover { background: var(--background); box-shadow: none; transform: none; filter: none;}
+        .btn-secondary { background: var(--surface); color: var(--text-main); border: 1px solid #cbd5e1; box-shadow: var(--shadow-sm); }
+        .btn-secondary:hover { background: #f8fafc; box-shadow: var(--shadow-md); border-color: var(--primary-blue); color: var(--primary-blue); filter:none; }
         
         .btn-danger { background: var(--danger-red); }
         .btn-danger:hover { background: #dc2626; }
@@ -260,21 +298,21 @@
         .checkbox-item:hover { border-color: var(--primary-blue); }
         .checkbox-item input { margin-right: 12px; width: 16px; height: 16px; accent-color: var(--primary-blue); cursor: pointer; }
 
-        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
         .kpi-card { 
-            background: var(--surface); padding: 24px; border-radius: var(--radius-xl); 
+            background: var(--surface); padding: 16px; border-radius: var(--radius-lg); 
             border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);
-            display: flex; flex-direction: column; gap: 8px; position: relative; overflow: hidden;
+            display: flex; flex-direction: column; gap: 6px; position: relative; overflow: hidden;
             transition: var(--transition);
         }
         .kpi-card.clickable { cursor: pointer; }
-        .kpi-card.clickable:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--brand-primary); }
+        .kpi-card.clickable:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--brand-primary); }
         .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; }
         .kpi-card:nth-child(1)::before { background: var(--primary-blue); }
         .kpi-card:nth-child(2)::before { background: var(--danger-red); }
         .kpi-card:nth-child(3)::before { background: var(--success-green); }
-        .kpi-card h3 { margin: 0; font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .kpi-card p { margin: 0; font-size: 36px; font-weight: 700; color: var(--primary-blue); letter-spacing: -1px; }
+        .kpi-card h3 { margin: 0; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .kpi-card p { margin: 0; font-size: 28px; font-weight: 700; color: var(--primary-blue); letter-spacing: -1px; }
 
         .issue-card { 
             background: var(--surface); padding: 20px; border-radius: var(--radius-lg); 
@@ -301,11 +339,15 @@
         .issue-meta { display: flex; gap: 16px; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 12px; flex-wrap: wrap;}
         
         .filter-row { 
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
-            gap: 20px; background: var(--surface); padding: 24px; 
-            border-radius: var(--radius-xl); margin-bottom: 24px; 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
+            gap: 12px; background: var(--surface); padding: 16px; 
+            border-radius: var(--radius-lg); margin-bottom: 24px; 
             border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);
+            align-items: end;
         }
+        .filter-row label { font-size: 12px; margin-bottom: 4px; display: block; font-weight: 600; color: var(--text-muted); }
+        .filter-row input, .filter-row select { padding: 10px 12px; font-size: 13px; height: 38px; }
+        .active-date-range { border-color: var(--brand-primary) !important; box-shadow: var(--shadow-focus) !important; background: rgba(79, 70, 229, 0.05) !important; color: var(--brand-primary) !important; font-weight: 600; }
         
         .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
         .chart-box { 
@@ -451,9 +493,17 @@
             .form-grid { grid-template-columns: 1fr; gap: 12px; }
             .btn-reduced-70, .btn-reduced-60 { width: 100% !important; }
             .kpi-grid { grid-template-columns: 1fr; gap: 12px; margin-bottom: 16px;}
+            
+            .filter-row { grid-template-columns: 1fr; gap: 12px; }
+            .filter-row > div { grid-column: span 1 !important; }
+            .filter-row input, .filter-row select { height: 44px; font-size: 14px; }
+            
             .chart-grid { grid-template-columns: 1fr; gap: 16px;}
-            .chart-box { height: 260px; padding: 16px;}
+            .chart-box { height: auto; min-height: 280px; padding: 16px; margin-bottom: 16px; }
+            .chart-box.table-box { overflow-x: auto; }
+            
             .options-grid { grid-template-columns: 1fr; }
+            .sub-nav-tabs { flex-direction: column; }
         }
     </style>
 </head>
@@ -472,6 +522,24 @@
     </div>
 </header>
 
+        <div id="portalSelectionSection" class="hidden" style="width:100%; height:100%; position:fixed; top:0; left:0; z-index:2000; background: var(--background); display:flex; flex-direction:column; justify-content:center; align-items:center; padding: 20px; box-sizing:border-box; overflow-y:auto;">
+            <div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); padding: 16px 32px; border-radius: var(--radius-lg); margin-bottom: 32px; display: inline-block; box-shadow: 0 10px 25px rgba(0,0,0,0.15);"><img src="logo2.png" id="portalLogo" alt="Logo" style="height:45px; display: block;"></div>
+            <h2 style="font-size:36px; margin-top:0; margin-bottom:12px; background:-webkit-linear-gradient(45deg, #4f46e5, #8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:800; letter-spacing:-1px; text-align:center;">Select Your Workspace</h2>
+            <p style="color:var(--text-muted); margin-bottom:48px; font-size:16px; font-weight: 500; text-align:center;">Choose a portal to load the associated data and workflows.</p>
+            <div style="display:flex; gap:32px; flex-wrap:wrap; justify-content:center;">
+                <div class="portal-card" onclick="selectPortal('Operations')">
+                    <div class="portal-icon" style="background: linear-gradient(135deg, #3b82f6, #2563eb);"><svg width="32" height="32" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg></div>
+                    <h3>Operations</h3>
+                    <p>Manage daily operational audits, assets, and terminal issues.</p>
+                </div>
+                <div class="portal-card" onclick="selectPortal('Quality')">
+                    <div class="portal-icon" style="background: linear-gradient(135deg, #10b981, #059669);"><svg width="32" height="32" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+                    <h3>Quality</h3>
+                    <p>Ensure hygiene, cleanliness, and strict quality compliance.</p>
+                </div>
+            </div>
+        </div>
+
 <div class="split-wrapper" id="masterSplitWrapper">
     <div class="side-hero" id="loginHero">
         <img src="logo2.png" id="heroLogo" alt="Logo">
@@ -483,7 +551,6 @@
 
     <aside class="sidebar hidden" id="mainSidebar">
         <div class="sidebar-header">
-            <img src="logo2.png" id="sidebarLogo" alt="Logo">
             <h3>Enterprise Solution</h3>
         </div>
         <nav class="sidebar-menu">
@@ -498,6 +565,11 @@
             <a class="menu-item" id="menuDash" onclick="switchTab('dash')">
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
                 Dashboard
+            </a>
+            <div style="flex:1;"></div>
+            <a class="menu-item" onclick="showPortalSelection()" style="margin-top:24px; border-top:1px solid rgba(255,255,255,0.1); border-radius:0; opacity:0.8;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+                Switch Portal
             </a>
         </nav>
     </aside>
@@ -528,11 +600,11 @@
 
         <div id="reportSection" class="container hidden">
             <div id="qrInitial" style="text-align:center; padding: 20px 0;">
-                <h2>Asset Verification</h2>
-                <p style="color: var(--text-muted); font-size: 14px; margin-top: -16px; margin-bottom: 32px;">Scan an asset tag or enter details manually to begin audit.</p>
+                <h2 id="auditTitle" style="font-size:28px; margin-bottom:8px;">Asset Verification</h2>
+                <p style="color: var(--text-muted); font-size: 15px; margin-top: 0; margin-bottom: 32px;">Scan an asset tag or enter details manually to begin the audit.</p>
                 
                 <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
-                    <button onclick="showScanner()" class="reduced-btn" style="background:var(--primary-blue);">
+                    <button onclick="showScanner()" class="reduced-btn">
                         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"></path></svg> 
                         Scan QR Code
                     </button>
@@ -573,13 +645,12 @@
                             </div>
                         </div>
                     </div>
-                    
                     <h3>Issue Classification</h3>
                     <label style="margin-top: 0;">Select Issue Type</label>
                     <div id="dynamicIssueTypes" class="options-grid"></div>
                     
                     <label style="margin-top: 24px;">Specific Description</label>
-                    <div id="dynamicIssueDesc" class="options-grid"></div>
+                    <div id="dynamicIssueDesc" class="options-grid" style="margin-bottom: 24px;"></div>
 
                     <div class="camera-box">
                         <label style="margin-top: 0; margin-bottom: 8px;">Photographic Evidence</label>
@@ -611,15 +682,18 @@
         </div>
 
         <div id="dashSection" class="container hidden" style="background: transparent; box-shadow: none; padding: 0; border: none;">
-            
-            <div class="filter-row">
+            <div class="filter-row glass-panel" style="background: rgba(255,255,255,0.6);">
+                <div style="grid-column: span 2;"><label style="margin-top:0;">Date Range</label><input type="text" id="filterDateRange" placeholder="Select Dates..." style="margin-top:0; cursor: pointer; background: #fff;"></div>
                 <div><label style="margin-top:0;">Terminal</label><select id="filterTerminal" onchange="applyFilters()"><option value="">All Regions</option></select></div>
                 <div><label style="margin-top:0;">Media Type</label><select id="filterMedia" onchange="applyFilters()"><option value="">All Types</option></select></div>
                 <div><label style="margin-top:0;">Package</label><select id="filterPackage" onchange="applyFilters()"><option value="">All Packages</option></select></div>
-                <div><label style="margin-top:0;">Asset Search</label>
+                <div><label style="margin-top:0;">Issue Type</label><select id="filterIssueType" onchange="applyFilters()"><option value="">All Types</option></select></div>
+                <div style="grid-column: span 2;"><label style="margin-top:0;">Issue Description</label><select id="filterIssueDesc" onchange="applyFilters()"><option value="">All Descriptions</option></select></div>
+                <div style="grid-column: span 2;"><label style="margin-top:0; visibility: hidden;">Search</label>
                     <div style="display:flex; gap:8px;">
-                        <input type="text" id="assetSearch" style="margin-top:0;" placeholder="Enter ID...">
-                        <button onclick="renderAssetTrend()" style="margin-top:0; width:auto; padding:0 20px;">Go</button>
+                        <input type="text" id="assetSearch" style="margin-top:0; flex:1;" placeholder="Asset ID...">
+                        <button onclick="renderAssetTrend()" style="margin-top:0; width:auto; padding:0 12px; height: 38px;">Go</button>
+                        <button onclick="resetFilters()" class="btn-secondary" style="margin-top:0; width:auto; padding:0 12px; height: 38px;">Reset</button>
                     </div>
                 </div>
             </div>
@@ -668,6 +742,19 @@
     let currentPhotoBase64 = "";
     
     let dynamicIssueMapping = {};
+    let fullAuditMapping = {};
+    let currentAuditType = 'Operations';
+    let currentListCategory = 'Operations';
+    let currentDashCategory = 'Operations';
+
+    function getAuditType(issue) {
+        if (issue.Audit_Type) return issue.Audit_Type;
+        if (!issue.Issue_Type) return 'Operations';
+        if (fullAuditMapping['Quality'] && Object.keys(fullAuditMapping['Quality']).includes(issue.Issue_Type)) {
+            return 'Quality';
+        }
+        return 'Operations';
+    }
 
     function compressImage(file, maxWidth, maxHeight, quality, callback) {
         const reader = new FileReader();
@@ -720,10 +807,13 @@
             applyConfig(); applyRoleAccess();
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('loginHero').classList.add('hidden'); 
-            document.getElementById('topHeader').classList.remove('hidden');
-            document.getElementById('mainSidebar').classList.remove('hidden'); 
-            const lastSec = sessionStorage.getItem('qrl_section') || 'report';
-            switchTab(lastSec);
+            
+            const storedPortal = sessionStorage.getItem('qrl_portal');
+            if (storedPortal) {
+                selectPortal(storedPortal, true);
+            } else {
+                showPortalSelection();
+            }
         }
     };
 
@@ -801,9 +891,15 @@
         descBox.innerHTML = ''; 
         
         if (dynamicIssueMapping[selectedType]) {
-            dynamicIssueMapping[selectedType].forEach(desc => {
-                descBox.innerHTML += `<label class="checkbox-item"><input type="radio" name="Issue_Description" value="${desc}">${desc}</label>`;
-            });
+            const hasTextBox = dynamicIssueMapping[selectedType].find(d => d.trim().startsWith('[TEXTBOX]'));
+            if (hasTextBox) {
+                const placeholder = hasTextBox.replace('[TEXTBOX]', '').trim() || 'Enter your remarks...';
+                descBox.innerHTML = `<div style="width:100%;"><input type="text" id="customDescriptionText" placeholder="${placeholder}" style="width:100%; margin-top:0;"></div>`;
+            } else {
+                dynamicIssueMapping[selectedType].forEach(desc => {
+                    descBox.innerHTML += `<label class="checkbox-item"><input type="radio" name="Issue_Description" value="${desc}">${desc}</label>`;
+                });
+            }
         }
     };
 
@@ -813,27 +909,27 @@
         document.getElementById('clientPortalName').innerText = config.clientName;
         
         if(config.logoUrl) {
-            document.getElementById('dynamicLogo1').src = config.logoUrl;
-            document.getElementById('heroLogo').src = config.logoUrl;
-            document.getElementById('sidebarLogo').src = config.logoUrl;
+            if(document.getElementById('dynamicLogo1')) document.getElementById('dynamicLogo1').src = config.logoUrl;
+            if(document.getElementById('heroLogo')) document.getElementById('heroLogo').src = config.logoUrl;
+            if(document.getElementById('sidebarLogo')) document.getElementById('sidebarLogo').src = config.logoUrl;
         }
         if(config.primaryColor) document.documentElement.style.setProperty('--primary-blue', config.primaryColor);
         
         try {
-            dynamicIssueMapping = JSON.parse(config.issueDesc);
+            let parsed = config.issueDesc;
+            if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+            if (typeof parsed === 'string') parsed = JSON.parse(parsed); // Handle double stringify
+
+            if (parsed['Operations'] || parsed['Quality']) {
+                fullAuditMapping = parsed;
+            } else {
+                fullAuditMapping = { "Operations": parsed, "Quality": {} };
+            }
         } catch(e) {
-            dynamicIssueMapping = { "General Issue": ["No description found. Please update Admin Config."] };
+            fullAuditMapping = { "Operations": { "General Issue": ["No description found. Please update Admin Config."] }, "Quality": {} };
         }
-
-        const typeBox = document.getElementById('dynamicIssueTypes');
-        const descBox = document.getElementById('dynamicIssueDesc');
         
-        typeBox.innerHTML = ''; 
-        descBox.innerHTML = ''; 
-
-        Object.keys(dynamicIssueMapping).forEach(type => {
-            typeBox.innerHTML += `<label class="checkbox-item"><input type="radio" name="Issue_Type" value="${type}" onchange="populateDescriptions('${type}')">${type}</label>`;
-        });
+        // Options are populated when audit type is selected
     }
 	
     function performLogout() { if(confirm("Sign out?")) { sessionStorage.clear(); location.reload(); } }
@@ -841,12 +937,15 @@
     function toggleMobileMenu() {
         const sidebar = document.getElementById('mainSidebar');
         const overlay = document.getElementById('mobileOverlay');
-        sidebar.classList.toggle('mobile-open');
-        
-        if(sidebar.classList.contains('mobile-open')) {
-            overlay.classList.add('show');
+        if (window.innerWidth <= 850) {
+            sidebar.classList.toggle('mobile-open');
+            if(sidebar.classList.contains('mobile-open')) {
+                overlay.classList.add('show');
+            } else {
+                overlay.classList.remove('show');
+            }
         } else {
-            overlay.classList.remove('show');
+            sidebar.classList.toggle('collapsed');
         }
     }
 
@@ -870,38 +969,154 @@
         }
     }
 
+    // Obsolete Category Functions Removed
+
+    let datePickerInstance = null;
+    let dashStartDate = null;
+    let dashEndDate = null;
+
     async function refreshData(mode) {
         const resp = await fetch(`${scriptURL}?action=getIssues&clientId=${currentUser.clientId}`);
         rawData = await resp.json();
-        if(mode === 'dash') { updateFilterOptions(); renderDashboard(rawData); } 
+        if(mode === 'dash') { 
+            initDateRangePicker();
+            syncFilters(); 
+            applyFilters(); 
+        } 
         else renderIssueList();
     }
 
-    function updateFilterOptions() {
-        const populate = (id, key) => {
-            const vals = [...new Set(rawData.map(i => i[key]))].filter(Boolean);
-            document.getElementById(id).innerHTML = `<option value="">All</option>` + vals.map(v => `<option value="${v}">${v}</option>`).join('');
+    function initDateRangePicker() {
+        if (!datePickerInstance) {
+            datePickerInstance = flatpickr("#filterDateRange", {
+                mode: "range",
+                dateFormat: "Y-m-d",
+                altInput: true,
+                altFormat: "M j, Y",
+                onChange: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length === 2) {
+                        dashStartDate = selectedDates[0];
+                        dashEndDate = selectedDates[1];
+                        document.getElementById('filterDateRange').classList.add('active-date-range');
+                        applyFilters();
+                    } else if (selectedDates.length === 0) {
+                        dashStartDate = null;
+                        dashEndDate = null;
+                        document.getElementById('filterDateRange').classList.remove('active-date-range');
+                        applyFilters();
+                    }
+                }
+            });
+        }
+    }
+
+    function resetFilters() {
+        if (document.getElementById('filterTerminal')) document.getElementById('filterTerminal').value = "";
+        if (document.getElementById('filterMedia')) document.getElementById('filterMedia').value = "";
+        if (document.getElementById('filterPackage')) document.getElementById('filterPackage').value = "";
+        if (document.getElementById('filterIssueType')) document.getElementById('filterIssueType').value = "";
+        if (document.getElementById('filterIssueDesc')) document.getElementById('filterIssueDesc').value = "";
+        if (document.getElementById('assetSearch')) document.getElementById('assetSearch').value = "";
+        
+        dashStartDate = null;
+        dashEndDate = null;
+        if(datePickerInstance) {
+            datePickerInstance.clear();
+        }
+        const el = document.getElementById('filterDateRange');
+        if (el) el.classList.remove('active-date-range');
+        if(document.getElementById('filterDateRange').nextElementSibling) {
+            document.getElementById('filterDateRange').nextElementSibling.classList.remove('active-date-range');
+        }
+        applyFilters();
+    }
+
+    function syncFilters() {
+        const ft = document.getElementById('filterTerminal') ? document.getElementById('filterTerminal').value : '';
+        const fm = document.getElementById('filterMedia') ? document.getElementById('filterMedia').value : '';
+        const fp = document.getElementById('filterPackage') ? document.getElementById('filterPackage').value : '';
+        const fit = document.getElementById('filterIssueType') ? document.getElementById('filterIssueType').value : '';
+        const fid = document.getElementById('filterIssueDesc') ? document.getElementById('filterIssueDesc').value : '';
+        
+        const catData = rawData.filter(i => getAuditType(i) === currentDashCategory);
+
+        const matchExcept = (row, except) => {
+            if (except !== 'Terminal' && ft && row.Terminal !== ft) return false;
+            if (except !== 'Media' && fm && row.Media_Type !== fm) return false;
+            if (except !== 'Package' && fp && row.Package !== fp) return false;
+            if (except !== 'IssueType' && fit && row.Issue_Type !== fit) return false;
+            if (except !== 'IssueDesc' && fid && row.Issue_Description !== fid) return false;
+            if (except !== 'Date') {
+                if (dashStartDate && dashEndDate) {
+                    const rowDate = new Date(row.Reported_Timestamp);
+                    rowDate.setHours(0,0,0,0);
+                    const s = new Date(dashStartDate); s.setHours(0,0,0,0);
+                    const e = new Date(dashEndDate); e.setHours(0,0,0,0);
+                    if (rowDate < s || rowDate > e) return false;
+                }
+            }
+            return true;
         };
-        populate('filterTerminal', 'Terminal'); populate('filterMedia', 'Media_Type'); populate('filterPackage', 'Package');
+
+        const populate = (id, key, exceptName, currentValue) => {
+            const validData = catData.filter(i => matchExcept(i, exceptName));
+            const vals = [...new Set(validData.map(i => i[key]))].filter(Boolean);
+            
+            let html = `<option value="">All</option>`;
+            vals.forEach(v => {
+                html += `<option value="${v}" ${v === currentValue ? 'selected' : ''}>${v}</option>`;
+            });
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = html;
+        };
+
+        populate('filterTerminal', 'Terminal', 'Terminal', ft);
+        populate('filterMedia', 'Media_Type', 'Media', fm);
+        populate('filterPackage', 'Package', 'Package', fp);
+        populate('filterIssueType', 'Issue_Type', 'IssueType', fit);
+        populate('filterIssueDesc', 'Issue_Description', 'IssueDesc', fid);
     }
 
     function applyFilters() {
-        const ft = document.getElementById('filterTerminal').value, fm = document.getElementById('filterMedia').value, fp = document.getElementById('filterPackage').value;
-        const filtered = rawData.filter(i => (!ft || i.Terminal === ft) && (!fm || i.Media_Type === fm) && (!fp || i.Package === fp));
+        const ft = document.getElementById('filterTerminal') ? document.getElementById('filterTerminal').value : '';
+        const fm = document.getElementById('filterMedia') ? document.getElementById('filterMedia').value : '';
+        const fp = document.getElementById('filterPackage') ? document.getElementById('filterPackage').value : '';
+        const fit = document.getElementById('filterIssueType') ? document.getElementById('filterIssueType').value : '';
+        const fid = document.getElementById('filterIssueDesc') ? document.getElementById('filterIssueDesc').value : '';
+
+        const filtered = rawData.filter(i => {
+            if (getAuditType(i) !== currentDashCategory) return false;
+            if (ft && i.Terminal !== ft) return false;
+            if (fm && i.Media_Type !== fm) return false;
+            if (fp && i.Package !== fp) return false;
+            if (fit && i.Issue_Type !== fit) return false;
+            if (fid && i.Issue_Description !== fid) return false;
+            if (dashStartDate && dashEndDate) {
+                const rowDate = new Date(i.Reported_Timestamp);
+                rowDate.setHours(0,0,0,0);
+                const s = new Date(dashStartDate); s.setHours(0,0,0,0);
+                const e = new Date(dashEndDate); e.setHours(0,0,0,0);
+                if (rowDate < s || rowDate > e) return false;
+            }
+            return true;
+        });
+        
+        syncFilters();
         renderDashboard(filtered);
     }
 
     function renderAssetTrend() {
         const code = document.getElementById('assetSearch').value.trim().toUpperCase();
-        const filtered = code ? rawData.filter(i => i.Asset_Code && i.Asset_Code.toString().toUpperCase() === code) : rawData;
+        const catData = rawData.filter(i => getAuditType(i) === currentDashCategory);
+        const filtered = code ? catData.filter(i => i.Asset_Code && i.Asset_Code.toString().toUpperCase() === code) : catData;
         renderDashboard(filtered, !!code, code);
     }
 
     function exportAuditLog() {
         if(rawData.length === 0) return;
-        let csv = "Date,Asset Code,Terminal,Issue Type,Status,Duration,Reported By,Closed By\n";
+        let csv = "Date,Audit Category,Asset Code,Terminal,Issue Type,Status,Duration,Reported By,Closed By\n";
         rawData.forEach(row => {
-            csv += `"${new Date(row.Reported_Timestamp).toLocaleDateString()}","${row.Asset_Code}","${row.Terminal}","${row.Issue_Type}","${row.Current_Status}","${row.Closure_Duration || 'Pending'}","${row.Reported_By}","${row.Closed_By || ''}"\n`;
+            csv += `"${new Date(row.Reported_Timestamp).toLocaleDateString()}","${getAuditType(row)}","${row.Asset_Code}","${row.Terminal}","${row.Issue_Type}","${row.Current_Status}","${row.Closure_Duration || 'Pending'}","${row.Reported_By}","${row.Closed_By || ''}"\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
@@ -926,7 +1141,14 @@
         }
         const group = (key) => {
             const counts = {};
-            dataToUse.forEach(i => { (i[key]||"Unknown").split(',').forEach(v => { const c = v.trim(); counts[c] = (counts[c] || 0) + 1; }); });
+            dataToUse.forEach(i => { 
+                let val = i[key];
+                if (!val || val.toString().trim() === '') val = "No Description Provided";
+                val.split(',').forEach(v => { 
+                    const c = v.trim(); 
+                    counts[c] = (counts[c] || 0) + 1; 
+                }); 
+            });
             return counts;
         };
         const colors = ['#4f46e5', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#0ea5e9'];
@@ -1000,10 +1222,19 @@
         e.preventDefault();
         
         const typeInput = document.querySelector('input[name="Issue_Type"]:checked');
+        let descValue = "";
+        
+        const customText = document.getElementById('customDescriptionText');
         const descInput = document.querySelector('input[name="Issue_Description"]:checked');
         
-        if (!typeInput || !descInput) {
-            alert("Please select exactly one Issue Type and one Specific Description.");
+        if (customText) {
+            descValue = customText.value.trim();
+        } else if (descInput) {
+            descValue = descInput.value;
+        }
+
+        if (!typeInput || !descValue) {
+            alert("Please select an Issue Type and provide a Specific Description.");
             return;
         }
 
@@ -1014,12 +1245,14 @@
         
         const payload = {
             action: 'submitAudit', 
+            Audit_Type: currentAuditType,
             Asset_Code: document.getElementById('Asset_Code').value, 
             Terminal: document.getElementById('Terminal').value,
             Package: document.getElementById('Package').value, 
             Media_Type: document.getElementById('Media_Type').value,
             Issue_Type: typeInput.value,           
-            Issue_Description: descInput.value,    
+            Issue_Description: descValue,
+            Priority: "Medium",
             User: currentUser.name, 
             ClientId: currentUser.clientId, 
             photoData: currentPhotoBase64
@@ -1052,7 +1285,9 @@
         const list = document.getElementById('issueList');
         let filtered = rawData.filter(i => {
             const s = (i.Current_Status || "").toLowerCase();
-            return currentView === 'open' ? s !== 'closed' : s === 'closed';
+            const matchesView = currentView === 'open' ? s !== 'closed' : s === 'closed';
+            const matchesCategory = getAuditType(i) === currentListCategory;
+            return matchesView && matchesCategory;
         });
         filtered.reverse();
         list.innerHTML = filtered.map(i => {
@@ -1066,6 +1301,7 @@
                     <span class="badge ${isClosed ? 'badge-closed' : 'badge-open'}">${i.Current_Status}</span>
                 </div>
                 <div class="issue-body">
+                    <b>Category:</b> <span style="color:var(--primary-blue); font-weight:600;">${getAuditType(i)}</span><br>
                     <b>Type:</b> ${i.Issue_Type}<br>
                     <b>Reported By:</b> ${i.Reported_By}<br>
                     ${isClosed ? `<b>Closed By:</b> ${i.Closed_By || 'N/A'}<br>` : ''}
@@ -1158,9 +1394,50 @@
         }
     }
 
+    function showPortalSelection() {
+        document.getElementById('portalSelectionSection').classList.remove('hidden');
+        document.getElementById('masterSplitWrapper').style.display = 'none';
+        document.getElementById('topHeader').classList.add('hidden');
+        if(config && config.logoUrl) document.getElementById('portalLogo').src = config.logoUrl;
+    }
+
+    function selectPortal(type, isReload = false) {
+        currentAuditType = type;
+        currentListCategory = type;
+        currentDashCategory = type;
+        sessionStorage.setItem('qrl_portal', type);
+
+        document.getElementById('portalSelectionSection').classList.add('hidden');
+        document.getElementById('masterSplitWrapper').style.display = 'flex';
+        document.getElementById('topHeader').classList.remove('hidden');
+        document.getElementById('mainSidebar').classList.remove('hidden'); 
+        
+        document.getElementById('clientPortalName').innerText = type + ' Portal';
+        document.getElementById('auditTitle').innerText = type + ' Verification';
+        
+        const typeBox = document.getElementById('dynamicIssueTypes');
+        const descBox = document.getElementById('dynamicIssueDesc');
+        typeBox.innerHTML = ''; 
+        descBox.innerHTML = ''; 
+        
+        dynamicIssueMapping = fullAuditMapping[currentAuditType] || {};
+        Object.keys(dynamicIssueMapping).forEach(t => {
+            typeBox.innerHTML += `<label class="checkbox-item"><input type="radio" name="Issue_Type" value="${t}" onchange="populateDescriptions('${t}')">${t}</label>`;
+        });
+
+        if (!isReload) {
+            switchTab('report');
+        } else {
+            const lastSec = sessionStorage.getItem('qrl_section') || 'report';
+            switchTab(lastSec);
+        }
+    }
+
     function resetToInitial() { location.reload(); }
     function skipQR() { document.querySelectorAll('#formBox input').forEach(i => i.readOnly = false); document.getElementById('qrInitial').classList.add('hidden'); document.getElementById('formBox').classList.remove('hidden'); }
-    function cancelScanner() { if(html5QrCode) html5QrCode.stop(); resetToInitial(); }
+    function cancelScanner() { if(html5QrCode) html5QrCode.stop(); document.getElementById('qrBox').classList.add('hidden'); document.getElementById('qrInitial').classList.remove('hidden'); }
+
+
 </script>
 </body>
 </html>
