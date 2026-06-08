@@ -537,6 +537,11 @@
                     <h3>Quality</h3>
                     <p>Ensure hygiene, cleanliness, and strict quality compliance.</p>
                 </div>
+                <div class="portal-card" onclick="selectPortal('Attendance')">
+                    <div class="portal-icon" style="background: linear-gradient(135deg, #8b5cf6, #6366f1);"><svg width="32" height="32" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+                    <h3>Attendance</h3>
+                    <p>Mark daily attendance via QR code scanning securely.</p>
+                </div>
             </div>
         </div>
 
@@ -596,6 +601,100 @@
             <button id="loginBtn" onclick="performLogin()" style="margin-top: 32px;">Sign In</button>
             <div id="loginLoader"></div>
             <p id="loginError" style="color: var(--danger-red); display:none; text-align:center; font-weight:500; font-size: 13px; margin-top:20px; background: #fef2f2; padding: 12px; border-radius: var(--radius-md); border: 1px solid #fecaca;">Access Denied. Please check your credentials.</p>
+        </div>
+
+        <div id="attendanceSection" class="container hidden">
+            <div id="attendanceInitial" style="text-align:center; padding: 20px 0;">
+                <h2 style="font-size:28px; margin-bottom:8px;">Daily Attendance</h2>
+                <p id="attMainSub" style="color: var(--text-muted); font-size: 15px; margin-top: 0; margin-bottom: 32px;">Please wait, checking status...</p>
+                
+                <div id="attLoadingBox" style="margin-bottom: 24px; color: var(--primary-blue); font-weight: 600;">
+                    <div class="spinner" style="border: 3px solid var(--border-color); border-top: 3px solid var(--brand-primary); border-radius: 50%; width: 24px; height: 24px; animation: spin 0.8s linear infinite; margin: 0 auto 12px auto;"></div>
+                    Checking status...
+                </div>
+                
+                <div id="attActionBox" style="display: none; gap: 16px; justify-content: center; flex-wrap: wrap;">
+                    <button onclick="showAttendanceScanner()" id="attScanBtn" class="reduced-btn">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"></path></svg> 
+                        Scan QR Code
+                    </button>
+                </div>
+                
+                <div id="attSummaryBox" class="hidden" style="background: var(--background); padding: 20px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-top: 24px; text-align: left; max-width: 400px; margin-left: auto; margin-right: auto; box-shadow: var(--shadow-sm);">
+                    <h3 style="margin-top: 0; margin-bottom: 16px; font-size: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; color: var(--text-main);">Today's Details</h3>
+                    <p style="margin-bottom: 12px; color: var(--text-main); font-size: 14px;"><strong>Employee:</strong> <span id="sumName"></span></p>
+                    <p style="margin-bottom: 12px; color: var(--text-main); font-size: 14px;"><strong>Date:</strong> <span id="sumDate"></span></p>
+                    <p style="margin-bottom: 12px; color: var(--text-main); font-size: 14px;"><strong>IN Time:</strong> <span id="sumIn"></span></p>
+                    <p style="margin-bottom: 0; color: var(--text-main); font-size: 14px;"><strong>OUT Time:</strong> <span id="sumOut">--</span></p>
+                </div>
+
+                <div id="mgrAttBtnBox" class="hidden" style="margin-top: 32px; text-align: center;">
+                    <button id="btnViewAttDetails" class="reduced-btn" onclick="switchTab('attendanceReport'); loadAttendanceData();" style="background: var(--brand-primary); color: white;">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 6px; vertical-align: middle;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> View Attendance Details
+                    </button>
+                </div>
+            </div>
+            
+            <div id="attendanceQrBox" class="hidden">
+                <div id="attendanceReader" style="width: 100%; max-width: 400px; margin: 0 auto; background: var(--sidebar-bg); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-lg);"></div>
+                <button onclick="cancelAttendanceScanner()" class="btn-danger" style="display: block; margin: 24px auto 0; width: 50%;">Cancel Scan</button>
+            </div>
+            
+            <div id="attendanceConfirmBox" class="hidden" style="text-align:center; padding: 20px 0;">
+                <h2 id="attConfirmTitle">Confirm Attendance</h2>
+                <div style="background: var(--background); padding: 20px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 24px; text-align: left; max-width: 400px; margin-left: auto; margin-right: auto;">
+                    <p style="margin-bottom: 12px; color: var(--text-main);"><strong>Employee:</strong> <span id="attEmpName"></span></p>
+                    <p style="margin-bottom: 12px; color: var(--text-main);"><strong>Date:</strong> <span id="attDate"></span></p>
+                    <p style="margin-bottom: 0; color: var(--text-main);"><strong>Time:</strong> <span id="attTime"></span></p>
+                </div>
+                <input type="hidden" id="attQrId">
+                
+                <div class="form-grid" style="max-width: 400px; margin: 0 auto;">
+                    <button type="button" class="btn-secondary" style="margin:0;" onclick="cancelAttendanceScanner()">Cancel</button>
+                    <button type="button" id="attSubmitBtn" class="btn-success" style="margin:0;" onclick="submitAttendance()">Mark Attendance</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="attendanceReportSection" class="container hidden" style="max-width: 900px; padding-bottom: 40px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="margin: 0; font-size: 24px;">Attendance Details</h2>
+                <button onclick="switchTab('attendance')" class="btn-secondary" style="margin: 0; padding: 8px 16px;">Back to Scanner</button>
+            </div>
+
+            <div class="glass-panel" style="padding: 20px; border-radius: var(--radius-lg); margin-bottom: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: end;">
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px;">Filter by Date</label>
+                    <input type="text" id="attFilterDate" placeholder="Select Date" class="flatpickr-input" style="width: 100%; padding: 10px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px;">Search by Employee</label>
+                    <input type="text" id="attFilterUser" placeholder="Employee Name" style="width: 100%; padding: 10px; border-radius: var(--radius-md); border: 1px solid var(--border-color);" oninput="renderAttendanceReport()">
+                </div>
+            </div>
+
+            <div class="glass-panel" style="padding: 20px; border-radius: var(--radius-lg); margin-bottom: 24px;">
+                <canvas id="attendanceChart" style="width:100%; height:300px;"></canvas>
+            </div>
+
+            <div class="glass-panel" style="border-radius: var(--radius-lg); overflow: hidden;">
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                        <thead style="background: var(--sidebar-bg); border-bottom: 1px solid var(--border-color);">
+                            <tr>
+                                <th style="padding: 16px; font-size: 13px; color: var(--text-muted); font-weight: 600;">Employee</th>
+                                <th style="padding: 16px; font-size: 13px; color: var(--text-muted); font-weight: 600;">Date</th>
+                                <th style="padding: 16px; font-size: 13px; color: var(--text-muted); font-weight: 600;">IN Time</th>
+                                <th style="padding: 16px; font-size: 13px; color: var(--text-muted); font-weight: 600;">OUT Time</th>
+                                <th style="padding: 16px; font-size: 13px; color: var(--text-muted); font-weight: 600;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attReportTableBody">
+                            <tr><td colspan="5" style="text-align: center; padding: 30px;">Loading data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <div id="reportSection" class="container hidden">
@@ -731,13 +830,92 @@
     </main>
 </div>
 
+<div id="privacyModal" class="hidden" style="position: fixed; top:0; left:0; width:100%; height:100%; background: #f8fafc; z-index: 10000; overflow-y: auto;">
+    <div style="padding: 20px; max-width: 800px; margin: 0 auto; padding-top: 40px; background: #fff; min-height: 100%; box-shadow: 0 0 20px rgba(0,0,0,0.05);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
+            <h1 style="margin: 0; font-size: 24px; color: var(--text-dark);">Privacy Policy</h1>
+            <button onclick="hidePrivacyPolicy()" class="btn-secondary" style="margin: 0; padding: 6px 16px; border-radius: 6px;">Close</button>
+        </div>
+        <div style="color: #475569; font-size: 14px; line-height: 1.7;">
+            <h3 style="color: var(--text-dark); margin-top: 24px;">1. Introduction</h3>
+            <p>Welcome to the TIMDAA Attendance & Operations Portal ("we", "our", or "us"). We are committed to protecting your personal information and your right to privacy.</p>
+            
+            <h3 style="color: var(--text-dark); margin-top: 24px;">2. Information We Collect</h3>
+            <p>We automatically collect certain information when you visit, use, or navigate the application. This information may include device and usage information, such as your IP address, browser and device characteristics, operating system, device name, and location data specifically required for verifying attendance markings (e.g., GPS coordinates when scanning a QR code if permitted).</p>
+            
+            <h3 style="color: var(--text-dark); margin-top: 24px;">3. How We Use Your Information</h3>
+            <p>We use personal information collected via our application for a variety of business purposes described below:</p>
+            <ul style="padding-left: 20px;">
+                <li>To facilitate account creation and logon process.</li>
+                <li>To verify and record employee attendance and operational timestamps.</li>
+                <li>To request camera permissions solely for the purpose of scanning asset and attendance QR codes.</li>
+                <li>To respond to user inquiries and offer support to users.</li>
+            </ul>
+            
+            <h3 style="color: var(--text-dark); margin-top: 24px;">4. Camera & Device Permissions</h3>
+            <p>This application requires access to your device's camera. This access is strictly used in real-time to scan physical QR codes for attendance verification and asset tracking. We do not record video, capture background images, or access your photo gallery without explicit user-initiated actions (e.g., uploading proof of an issue).</p>
+            
+            <h3 style="color: var(--text-dark); margin-top: 24px;">5. Data Sharing and Security</h3>
+            <p>Your data is securely transmitted and stored on controlled servers (such as Google Cloud/Google Workspace). We do not share, sell, rent, or trade your information with third parties for their promotional purposes. We have implemented appropriate technical and organizational security measures designed to protect the security of any personal information we process.</p>
+
+            <h3 style="color: var(--text-dark); margin-top: 24px;">6. Contact Us</h3>
+            <p>If you have questions or comments about this policy, you may contact the system administrator or IT department at TIMDAA.</p>
+            <p style="margin-top: 40px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 16px;">Last Updated: June 2026</p>
+        </div>
+    </div>
+</div>
+
 <footer class="global-footer">
-    &copy; 2026 Powered by QRlytics | Designed & Developed By Pankaj Sharma
+    &copy; 2026 Powered by QRlytics | Designed & Developed By Pankaj Sharma<br>
+    <a href="javascript:void(0)" onclick="showPrivacyPolicy()" style="color: var(--primary-blue); text-decoration: none; font-size: 12px; margin-top: 8px; display: inline-block; font-weight: 500;">Privacy Policy</a>
 </footer>
 
 <script>
     Chart.register(ChartDataLabels);
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyjWv9Qvi212R7orV9kFGj3QRZlb60_UyewjPBQJvqmgq4E2hZc77iNbWlQKY3Ws07V/exec';
+    
+    window.addEventListener('popstate', function(e) {
+        const state = e.state;
+
+        if (document.getElementById('imageModalOverlay')) {
+            document.getElementById('imageModalOverlay').remove();
+        }
+
+        if (!state) {
+            if (!document.getElementById('privacyModal').classList.contains('hidden')) {
+                hidePrivacyPolicy(true);
+            }
+            sessionStorage.removeItem('qrl_session'); 
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('loginHero').classList.remove('hidden');
+            document.getElementById('portalSelectionSection').classList.add('hidden');
+            document.getElementById('masterSplitWrapper').style.display = 'none';
+            document.getElementById('topHeader').classList.add('hidden');
+            return;
+        }
+
+        if (state.view === 'portals') {
+            if (!document.getElementById('privacyModal').classList.contains('hidden')) {
+                hidePrivacyPolicy(true);
+            }
+            showPortalSelection(true);
+        } else if (state.view === 'main') {
+            if (!document.getElementById('privacyModal').classList.contains('hidden')) {
+                hidePrivacyPolicy(true);
+            }
+            if (!document.getElementById('attendanceQrBox').classList.contains('hidden') || !document.getElementById('attendanceConfirmBox').classList.contains('hidden')) {
+                cancelAttendanceScanner(true);
+            }
+            if (document.getElementById('qrBox') && !document.getElementById('qrBox').classList.contains('hidden')) {
+                cancelScanner(true);
+            }
+            document.getElementById('portalSelectionSection').classList.add('hidden');
+            document.getElementById('masterSplitWrapper').style.display = 'flex';
+            document.getElementById('topHeader').classList.remove('hidden');
+            document.getElementById('mainSidebar').classList.remove('hidden'); 
+        }
+    });
+
     let currentUser = null, config = null, html5QrCode = null, rawData = [], currentView = 'open', dashboardCharts = {};
     let currentPhotoBase64 = "";
     
@@ -808,12 +986,21 @@
             document.getElementById('loginSection').classList.add('hidden');
             document.getElementById('loginHero').classList.add('hidden'); 
             
+            if (!history.state) {
+                history.replaceState({ view: 'portals' }, '');
+            }
+
             const storedPortal = sessionStorage.getItem('qrl_portal');
             if (storedPortal) {
-                selectPortal(storedPortal, true);
+                if (!history.state || history.state.view !== 'main') {
+                    history.pushState({ view: 'main', portal: storedPortal }, '');
+                }
+                selectPortal(storedPortal, true, true);
             } else {
-                showPortalSelection();
+                showPortalSelection(true);
             }
+        } else {
+            history.replaceState(null, '');
         }
     };
 
@@ -840,16 +1027,21 @@
         if(!src || src === "undefined" || src === "null") return;
 
         if (src.startsWith('data:image') || src.startsWith('blob:')) {
+            history.pushState({ view: 'scanner' }, '');
             const overlay = document.createElement('div');
             overlay.className = 'preview-overlay';
+            overlay.id = 'imageModalOverlay';
             overlay.innerHTML = `<div class="image-modal" onclick="event.stopPropagation()">
                 <div class="modal-controls">
                     <button class="modal-btn" onclick="this.parentElement.parentElement.querySelector('img').style.transform += 'rotate(90deg)'">Rotate</button>
-                    <button class="modal-btn" onclick="this.closest('.preview-overlay').remove()">Close</button>
+                    <button class="modal-btn" onclick="if(history.state && history.state.view==='scanner') history.back(); else this.closest('.preview-overlay').remove()">Close</button>
                 </div>
                 <img src="${src}" style="transition: transform 0.3s">
             </div>`;
-            overlay.onclick = () => overlay.remove();
+            overlay.onclick = () => {
+                if(history.state && history.state.view === 'scanner') history.back();
+                else overlay.remove();
+            };
             document.body.appendChild(overlay);
         } 
         else {
@@ -877,6 +1069,7 @@
                 currentUser = res.user; config = res.config;
                 sessionStorage.setItem('qrl_session', JSON.stringify({user: currentUser, config: config}));
                 sessionStorage.setItem('qrl_section', 'report');
+                history.pushState({ view: 'portals' }, '');
                 location.reload();
             } else { 
                 document.getElementById('loginError').style.display='block'; 
@@ -1201,9 +1394,10 @@
         });
     }
 
-    function showScanner() {
+    function showScanner(fromPopState = false) {
         document.getElementById('qrInitial').classList.add('hidden');
         document.getElementById('qrBox').classList.remove('hidden');
+        if (!fromPopState) history.pushState({ view: 'scanner' }, '');
         html5QrCode = new Html5Qrcode("reader");
         html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 220 }, (text) => {
             const p = text.split('|');
@@ -1394,49 +1588,330 @@
         }
     }
 
-    function showPortalSelection() {
+    function showPrivacyPolicy(fromPopState = false) {
+        document.getElementById('privacyModal').classList.remove('hidden');
+        if (!fromPopState) history.pushState({ view: 'privacy' }, '');
+    }
+
+    function hidePrivacyPolicy(fromPopState = false) {
+        if (!fromPopState && history.state && history.state.view === 'privacy') {
+            history.back();
+            return;
+        }
+        document.getElementById('privacyModal').classList.add('hidden');
+    }
+
+    function showPortalSelection(fromPopState = false) {
         document.getElementById('portalSelectionSection').classList.remove('hidden');
         document.getElementById('masterSplitWrapper').style.display = 'none';
         document.getElementById('topHeader').classList.add('hidden');
         if(config && config.logoUrl) document.getElementById('portalLogo').src = config.logoUrl;
+        
+        if (!fromPopState) {
+            history.pushState({ view: 'portals' }, '');
+        }
     }
 
-    function selectPortal(type, isReload = false) {
+    function selectPortal(type, isReload = false, fromPopState = false) {
         currentAuditType = type;
         currentListCategory = type;
         currentDashCategory = type;
         sessionStorage.setItem('qrl_portal', type);
+
+        if (!isReload && !fromPopState) {
+            history.pushState({ view: 'main', portal: type }, '');
+        }
 
         document.getElementById('portalSelectionSection').classList.add('hidden');
         document.getElementById('masterSplitWrapper').style.display = 'flex';
         document.getElementById('topHeader').classList.remove('hidden');
         document.getElementById('mainSidebar').classList.remove('hidden'); 
         
-        document.getElementById('clientPortalName').innerText = type + ' Portal';
-        document.getElementById('auditTitle').innerText = type + ' Verification';
+        document.getElementById('clientPortalName').innerText = type + (type === 'Attendance' ? '' : ' Portal');
         
-        const typeBox = document.getElementById('dynamicIssueTypes');
-        const descBox = document.getElementById('dynamicIssueDesc');
-        typeBox.innerHTML = ''; 
-        descBox.innerHTML = ''; 
-        
-        dynamicIssueMapping = fullAuditMapping[currentAuditType] || {};
-        Object.keys(dynamicIssueMapping).forEach(t => {
-            typeBox.innerHTML += `<label class="checkbox-item"><input type="radio" name="Issue_Type" value="${t}" onchange="populateDescriptions('${t}')">${t}</label>`;
-        });
-
-        if (!isReload) {
-            switchTab('report');
+        if (type === 'Attendance') {
+            document.getElementById('menuReport').style.display = 'none';
+            document.getElementById('menuClose').style.display = 'none';
+            document.getElementById('menuDash').style.display = 'none';
+            switchTab('attendance');
+            initAttendanceStatus();
+            return;
         } else {
-            const lastSec = sessionStorage.getItem('qrl_section') || 'report';
-            switchTab(lastSec);
+            document.getElementById('menuReport').style.display = 'flex';
+            applyRoleAccess();
+            
+            document.getElementById('auditTitle').innerText = type + ' Verification';
+            
+            const typeBox = document.getElementById('dynamicIssueTypes');
+            const descBox = document.getElementById('dynamicIssueDesc');
+            typeBox.innerHTML = ''; 
+            descBox.innerHTML = ''; 
+            
+            dynamicIssueMapping = fullAuditMapping[currentAuditType] || {};
+            Object.keys(dynamicIssueMapping).forEach(t => {
+                typeBox.innerHTML += `<label class="checkbox-item"><input type="radio" name="Issue_Type" value="${t}" onchange="populateDescriptions('${t}')">${t}</label>`;
+            });
+
+            if (!isReload) {
+                switchTab('report');
+            } else {
+                const lastSec = sessionStorage.getItem('qrl_section') || 'report';
+                if(lastSec === 'attendance') switchTab('report');
+                else switchTab(lastSec);
+            }
         }
     }
 
     function resetToInitial() { location.reload(); }
     function skipQR() { document.querySelectorAll('#formBox input').forEach(i => i.readOnly = false); document.getElementById('qrInitial').classList.add('hidden'); document.getElementById('formBox').classList.remove('hidden'); }
-    function cancelScanner() { if(html5QrCode) html5QrCode.stop(); document.getElementById('qrBox').classList.add('hidden'); document.getElementById('qrInitial').classList.remove('hidden'); }
+    function cancelScanner(fromPopState = false) { 
+        if (!fromPopState && history.state && history.state.view === 'scanner') {
+            history.back();
+            return;
+        }
+        if(html5QrCode) html5QrCode.stop(); 
+        document.getElementById('qrBox').classList.add('hidden'); 
+        document.getElementById('qrInitial').classList.remove('hidden'); 
+    }
 
+    let attendanceQrScanner = null;
+    let attendanceContextType = 'IN';
+
+    async function initAttendanceStatus() {
+        document.getElementById('attActionBox').style.display = 'none';
+        document.getElementById('attSummaryBox').classList.add('hidden');
+        document.getElementById('attendanceInitial').classList.remove('hidden');
+        document.getElementById('attendanceQrBox').classList.add('hidden');
+        document.getElementById('attendanceConfirmBox').classList.add('hidden');
+        document.getElementById('attLoadingBox').style.display = 'block';
+        document.getElementById('attMainSub').innerText = "Please wait, checking status...";
+
+        if (currentUser.role === 'Manager') {
+            document.getElementById('mgrAttBtnBox').classList.remove('hidden');
+        } else {
+            document.getElementById('mgrAttBtnBox').classList.add('hidden');
+        }
+        
+        try {
+            const now = new Date();
+            const today = now.toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
+            const url = `${scriptURL}?action=checkAttendance&userId=${currentUser.name}&date=${today}`;
+            const response = await fetch(url);
+            const res = await response.json();
+            
+            document.getElementById('attLoadingBox').style.display = 'none';
+            
+            if (res.status === 'PENDING_IN') {
+                attendanceContextType = 'IN';
+                document.getElementById('attMainSub').innerText = "Scan the QR code to mark your IN Time.";
+                document.getElementById('attScanBtn').innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 6px; vertical-align: middle;"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"></path></svg> Mark IN Time`;
+                document.getElementById('attActionBox').style.display = 'flex';
+                document.getElementById('attSummaryBox').classList.add('hidden');
+            } else if (res.status === 'PENDING_OUT') {
+                attendanceContextType = 'OUT';
+                document.getElementById('attMainSub').innerText = "Scan the QR code to mark your OUT Time.";
+                document.getElementById('attScanBtn').innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 6px; vertical-align: middle;"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"></path></svg> Mark OUT Time`;
+                document.getElementById('attActionBox').style.display = 'flex';
+                showAttendanceSummary(res.details);
+            } else {
+                document.getElementById('attMainSub').innerText = "Attendance completed for today.";
+                document.getElementById('attActionBox').style.display = 'none';
+                showAttendanceSummary(res.details);
+            }
+        } catch(e) {
+            document.getElementById('attLoadingBox').style.display = 'none';
+            document.getElementById('attMainSub').innerText = "Error loading status.";
+        }
+    }
+
+    function showAttendanceSummary(details) {
+        if (!details) return;
+        document.getElementById('sumName').innerText = details.name || currentUser.name;
+        document.getElementById('sumDate').innerText = details.date;
+        document.getElementById('sumIn').innerText = details.inTime || '--';
+        document.getElementById('sumOut').innerText = details.outTime || '--';
+        document.getElementById('attSummaryBox').classList.remove('hidden');
+    }
+
+    function showAttendanceScanner(fromPopState = false) {
+        document.getElementById('attendanceInitial').classList.add('hidden');
+        document.getElementById('attendanceQrBox').classList.remove('hidden');
+        if (!fromPopState) history.pushState({ view: 'scanner' }, '');
+        attendanceQrScanner = new Html5Qrcode("attendanceReader");
+        attendanceQrScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 220 }, (text) => {
+            attendanceQrScanner.stop().then(() => {
+                document.getElementById('attendanceQrBox').classList.add('hidden');
+                
+                document.getElementById('attConfirmTitle').innerText = `Confirm ${attendanceContextType} Time`;
+                document.getElementById('attQrId').value = text;
+                document.getElementById('attEmpName').innerText = currentUser.name;
+                const now = new Date();
+                document.getElementById('attDate').innerText = now.toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' });
+                document.getElementById('attTime').innerText = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit' });
+                
+                document.getElementById('attendanceConfirmBox').classList.remove('hidden');
+            });
+        }).catch(() => alert("Camera error or permission denied."));
+    }
+
+    function cancelAttendanceScanner(fromPopState = false) {
+        if (!fromPopState && history.state && history.state.view === 'scanner') {
+            history.back();
+            return;
+        }
+        if(attendanceQrScanner) {
+            try { attendanceQrScanner.stop(); } catch(e){}
+        }
+        document.getElementById('attendanceQrBox').classList.add('hidden');
+        document.getElementById('attendanceConfirmBox').classList.add('hidden');
+        document.getElementById('attendanceInitial').classList.remove('hidden');
+    }
+
+    async function submitAttendance() {
+        const btn = document.getElementById('attSubmitBtn');
+        btn.innerText = "Submitting...";
+        btn.disabled = true;
+        btn.style.opacity = "0.7";
+        
+        const now = new Date();
+        const payload = {
+            action: 'markAttendance',
+            userId: currentUser.name,
+            employeeName: currentUser.name,
+            clientId: currentUser.clientId,
+            date: now.toLocaleDateString('en-GB', { timeZone: 'Asia/Kolkata' }),
+            time: now.toLocaleTimeString('en-US', { timeZone: 'Asia/Kolkata', hour12: true, hour: '2-digit', minute: '2-digit' }),
+            day: now.toLocaleDateString('en-US', { timeZone: 'Asia/Kolkata', weekday: 'long' }),
+            qrId: document.getElementById('attQrId').value,
+            type: attendanceContextType
+        };
+        
+        try {
+            const response = await fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) });
+            const resData = await response.json();
+            if (!resData.success) throw new Error(resData.message || "Submission failed");
+
+            alert(`${attendanceContextType} Time marked successfully!`); 
+            cancelAttendanceScanner();
+            initAttendanceStatus();
+        } catch(error) {
+            console.error("Submission failed:", error);
+            alert(error.message || "Failed to mark attendance.");
+        } finally {
+            btn.innerText = "Mark Attendance";
+            btn.disabled = false;
+            btn.style.opacity = "1";
+        }
+    }
+
+    // --- ATTENDANCE REPORT LOGIC ---
+
+    let attRawData = [];
+    let attChartInstance = null;
+
+    flatpickr("#attFilterDate", {
+        dateFormat: "d/m/Y",
+        onChange: function() {
+            renderAttendanceReport();
+        }
+    });
+
+    async function loadAttendanceData() {
+        document.getElementById('attReportTableBody').innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px;">Loading data...</td></tr>';
+        try {
+            const resp = await fetch(`${scriptURL}?action=getAllAttendance`);
+            attRawData = await resp.json();
+            renderAttendanceReport();
+        } catch (e) {
+            console.error(e);
+            document.getElementById('attReportTableBody').innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px; color: red;">Error loading data.</td></tr>';
+        }
+    }
+
+    function renderAttendanceReport() {
+        const dateFilter = document.getElementById('attFilterDate').value;
+        const userFilter = document.getElementById('attFilterUser').value.toLowerCase();
+
+        let filtered = attRawData;
+
+        if (dateFilter) {
+            filtered = filtered.filter(r => r.date === dateFilter);
+        }
+        if (userFilter) {
+            filtered = filtered.filter(r => (r.name || r.userId).toLowerCase().includes(userFilter));
+        }
+
+        const tbody = document.getElementById('attReportTableBody');
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px;">No attendance records found.</td></tr>';
+        } else {
+            tbody.innerHTML = filtered.map(r => `
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    <td style="padding: 16px; font-size: 13px;">${r.name || r.userId}</td>
+                    <td style="padding: 16px; font-size: 13px;">${r.date}</td>
+                    <td style="padding: 16px; font-size: 13px; font-weight: 500;">${r.inTime || '--'}</td>
+                    <td style="padding: 16px; font-size: 13px; font-weight: 500;">${r.outTime || '--'}</td>
+                    <td style="padding: 16px; font-size: 13px;">
+                        <span style="background: ${r.inTime ? 'var(--success-green)' : 'var(--danger-red)'}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;">
+                            ${r.inTime ? 'Present' : 'Absent'}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        updateAttendanceChart(filtered);
+    }
+
+    function updateAttendanceChart(data) {
+        const ctx = document.getElementById('attendanceChart').getContext('2d');
+        if (typeof ChartDataLabels !== 'undefined') Chart.register(ChartDataLabels);
+        
+        // Group by Date for Present count
+        const dateCounts = {};
+        data.forEach(r => {
+            if (r.inTime) {
+                if (!dateCounts[r.date]) dateCounts[r.date] = new Set();
+                dateCounts[r.date].add(r.userId);
+            }
+        });
+
+        const labels = Object.keys(dateCounts).sort((a,b) => {
+            let [d1, m1, y1] = a.split('/');
+            let [d2, m2, y2] = b.split('/');
+            return new Date(y1, m1-1, d1) - new Date(y2, m2-1, d2);
+        });
+        const presentData = labels.map(d => dateCounts[d].size);
+
+        if (attChartInstance) attChartInstance.destroy();
+
+        attChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Total Present',
+                    data: presentData,
+                    backgroundColor: '#4f46e5',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision: 0 } }
+                },
+                plugins: {
+                    legend: { display: true },
+                    datalabels: {
+                        color: '#fff',
+                        font: { weight: 'bold' }
+                    }
+                }
+            }
+        });
+    }
 
 </script>
 </body>
