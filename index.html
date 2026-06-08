@@ -830,44 +830,9 @@
     </main>
 </div>
 
-<div id="privacyModal" class="hidden" style="position: fixed; top:0; left:0; width:100%; height:100%; background: #f8fafc; z-index: 10000; overflow-y: auto;">
-    <div style="padding: 20px; max-width: 800px; margin: 0 auto; padding-top: 40px; background: #fff; min-height: 100%; box-shadow: 0 0 20px rgba(0,0,0,0.05);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
-            <h1 style="margin: 0; font-size: 24px; color: var(--text-dark);">Privacy Policy</h1>
-            <button onclick="hidePrivacyPolicy()" class="btn-secondary" style="margin: 0; padding: 6px 16px; border-radius: 6px;">Close</button>
-        </div>
-        <div style="color: #475569; font-size: 14px; line-height: 1.7;">
-            <h3 style="color: var(--text-dark); margin-top: 24px;">1. Introduction</h3>
-            <p>Welcome to the TIMDAA Attendance & Operations Portal ("we", "our", or "us"). We are committed to protecting your personal information and your right to privacy.</p>
-            
-            <h3 style="color: var(--text-dark); margin-top: 24px;">2. Information We Collect</h3>
-            <p>We automatically collect certain information when you visit, use, or navigate the application. This information may include device and usage information, such as your IP address, browser and device characteristics, operating system, device name, and location data specifically required for verifying attendance markings (e.g., GPS coordinates when scanning a QR code if permitted).</p>
-            
-            <h3 style="color: var(--text-dark); margin-top: 24px;">3. How We Use Your Information</h3>
-            <p>We use personal information collected via our application for a variety of business purposes described below:</p>
-            <ul style="padding-left: 20px;">
-                <li>To facilitate account creation and logon process.</li>
-                <li>To verify and record employee attendance and operational timestamps.</li>
-                <li>To request camera permissions solely for the purpose of scanning asset and attendance QR codes.</li>
-                <li>To respond to user inquiries and offer support to users.</li>
-            </ul>
-            
-            <h3 style="color: var(--text-dark); margin-top: 24px;">4. Camera & Device Permissions</h3>
-            <p>This application requires access to your device's camera. This access is strictly used in real-time to scan physical QR codes for attendance verification and asset tracking. We do not record video, capture background images, or access your photo gallery without explicit user-initiated actions (e.g., uploading proof of an issue).</p>
-            
-            <h3 style="color: var(--text-dark); margin-top: 24px;">5. Data Sharing and Security</h3>
-            <p>Your data is securely transmitted and stored on controlled servers (such as Google Cloud/Google Workspace). We do not share, sell, rent, or trade your information with third parties for their promotional purposes. We have implemented appropriate technical and organizational security measures designed to protect the security of any personal information we process.</p>
-
-            <h3 style="color: var(--text-dark); margin-top: 24px;">6. Contact Us</h3>
-            <p>If you have questions or comments about this policy, you may contact the system administrator or IT department at TIMDAA.</p>
-            <p style="margin-top: 40px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 16px;">Last Updated: June 2026</p>
-        </div>
-    </div>
-</div>
-
 <footer class="global-footer">
     &copy; 2026 Powered by QRlytics | Designed & Developed By Pankaj Sharma<br>
-    <a href="javascript:void(0)" onclick="showPrivacyPolicy()" style="color: var(--primary-blue); text-decoration: none; font-size: 12px; margin-top: 8px; display: inline-block; font-weight: 500;">Privacy Policy</a>
+    <a href="privacypolicy.html" style="color: var(--primary-blue); text-decoration: none; font-size: 12px; margin-top: 8px; display: inline-block; font-weight: 500;">Privacy Policy</a>
 </footer>
 
 <script>
@@ -882,9 +847,6 @@
         }
 
         if (!state) {
-            if (!document.getElementById('privacyModal').classList.contains('hidden')) {
-                hidePrivacyPolicy(true);
-            }
             sessionStorage.removeItem('qrl_session'); 
             document.getElementById('loginSection').classList.remove('hidden');
             document.getElementById('loginHero').classList.remove('hidden');
@@ -895,14 +857,8 @@
         }
 
         if (state.view === 'portals') {
-            if (!document.getElementById('privacyModal').classList.contains('hidden')) {
-                hidePrivacyPolicy(true);
-            }
             showPortalSelection(true);
         } else if (state.view === 'main') {
-            if (!document.getElementById('privacyModal').classList.contains('hidden')) {
-                hidePrivacyPolicy(true);
-            }
             if (!document.getElementById('attendanceQrBox').classList.contains('hidden') || !document.getElementById('attendanceConfirmBox').classList.contains('hidden')) {
                 cancelAttendanceScanner(true);
             }
@@ -1586,19 +1542,6 @@
         } else {
             processSubmission("");
         }
-    }
-
-    function showPrivacyPolicy(fromPopState = false) {
-        document.getElementById('privacyModal').classList.remove('hidden');
-        if (!fromPopState) history.pushState({ view: 'privacy' }, '');
-    }
-
-    function hidePrivacyPolicy(fromPopState = false) {
-        if (!fromPopState && history.state && history.state.view === 'privacy') {
-            history.back();
-            return;
-        }
-        document.getElementById('privacyModal').classList.add('hidden');
     }
 
     function showPortalSelection(fromPopState = false) {
