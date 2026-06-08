@@ -6,21 +6,22 @@
     <title>QRlytics | Enterprise Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* --- DESIGN SYSTEM --- */
+        /* --- PREMIUM DESIGN SYSTEM --- */
         :root { 
             --primary: #4f46e5; 
             --primary-hover: #4338ca;
+            --gradient-primary: linear-gradient(135deg, #4f46e5, #8b5cf6);
             --sidebar-bg: #0f172a;
             --sidebar-active: #1e293b;
             --sidebar-text: #94a3b8;
             --sidebar-light: #ffffff;
             
-            --bg-body: #f8fafc;
-            --bg-surface: #ffffff;
+            --bg-body: #f1f5f9;
+            --bg-surface: rgba(255, 255, 255, 0.85);
             --text-heading: #0f172a;
             --text-body: #475569;
             --text-muted: #64748b;
-            --border: #e2e8f0;
+            --border: rgba(226, 232, 240, 0.7);
             
             --success: #10b981;
             --success-light: #d1fae5;
@@ -33,12 +34,15 @@
             --warning-dark: #92400e;
             
             --sidebar-width: 260px;
-            --radius-md: 8px;
+            --radius-md: 12px;
             --radius-lg: 16px;
-            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
-            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
-            --focus-ring: 0 0 0 3px rgba(79, 70, 229, 0.2);
+            --radius-xl: 24px;
+            
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --focus-ring: 0 0 0 4px rgba(79, 70, 229, 0.2);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * { box-sizing: border-box; }
@@ -98,7 +102,7 @@
         .nav-item svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2; fill: none; }
         .nav-item:hover { background: rgba(255,255,255,0.05); color: var(--sidebar-light); }
         .nav-item.active { 
-            background: var(--primary); 
+            background: var(--gradient-primary); 
             color: white; 
             box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); 
             font-weight: 600;
@@ -121,8 +125,9 @@
         }
         
         .top-header { 
-            background: rgba(255, 255, 255, 0.8); 
-            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             padding: 16px 32px; 
             display: flex; justify-content: space-between; align-items: center; 
             border-bottom: 1px solid var(--border); 
@@ -147,6 +152,8 @@
         /* --- CARDS & WIDGETS --- */
         .card { 
             background: var(--bg-surface); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             padding: 32px; 
             border-radius: var(--radius-lg); 
             box-shadow: var(--shadow-sm); 
@@ -157,13 +164,17 @@
         .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-bottom: 32px; }
         .stat-card { 
             background: var(--bg-surface); 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             padding: 24px; 
             border-radius: var(--radius-lg); 
             border: 1px solid var(--border);
             box-shadow: var(--shadow-sm);
             display: flex; flex-direction: column; gap: 8px;
             position: relative; overflow: hidden;
+            transition: var(--transition);
         }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: var(--primary); }
         .stat-card::after {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
         }
@@ -195,12 +206,13 @@
         .btn-delete:hover { background: #fecaca; }
 
         button.save { 
-            background: var(--primary); width: 100%; margin-top: 24px; padding: 14px; 
+            background: var(--gradient-primary); width: 100%; margin-top: 24px; padding: 14px; 
             font-size: 15px; color: white; border: none; border-radius: var(--radius-md); 
-            cursor: pointer; font-weight: 600; transition: all 0.2s ease;
-            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);
+            cursor: pointer; font-weight: 600; transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
         }
-        button.save:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 6px 10px -1px rgba(79, 70, 229, 0.3); }
+        button.save:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 8px 16px rgba(79, 70, 229, 0.4); filter: brightness(1.1); }
+        button.save:active { transform: translateY(0); box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3); filter: brightness(1); }
 
         /* --- FORMS --- */
         label { display: block; font-weight: 500; margin-bottom: 8px; font-size: 13px; color: var(--text-heading); }
@@ -346,6 +358,9 @@
                         <p style="font-size: 11px; color: var(--text-muted); margin-top: 0; margin-bottom: 8px;">Comma-separated (e.g. alerts@company.com, team@company.com)</p>
                         <input type="text" id="brandEmails" placeholder="admin@domain.com, manager@domain.com">
                         
+                        <label style="margin-top: 20px;">Gemini API Key (AI Features)</label>
+                        <input type="password" id="brandGemini" placeholder="AIzaSy...">
+                        
                         <label style="margin-top: 20px;">Theme Color</label>
                         <input type="color" id="brandColor" value="#4f46e5" style="height: 48px; cursor: pointer; padding: 4px;">
                     </div>
@@ -386,12 +401,16 @@
                         </div>
                     </div>
 
-                    <label style="margin-top: 20px;">Issue Category & Description Mapping</label>
+                    <label style="margin-top: 20px;">Operational Issue Category & Description Mapping</label>
                     <p style="font-size: 12px; color: var(--text-muted); margin-top: -4px; margin-bottom: 8px;">Format: <b>Category : Desc 1, Desc 2</b> (One category per line)</p>
-                    <textarea id="confIssueMapping" rows="8" oninput="updateLivePreview()" placeholder="Hardware Issue : Media Player - Auto On/Off, Display Cable Faulty&#10;Software Issue : Content Sync Issue, Error Msg on screen">Hardware Issue : Media Player - Auto On/Off, Display Cable Faulty, Network Cable Faulty, Screen Visibility Issue, Power Cable Faulty, Led - Alignment Issue, Enclosure - Lock Issue, Mcu - Lock Issue, Led - Pixel Damage Issue, Mcu - Tray Issue, Faulty Mcu Ports/Socket, Enclosure - Bottom Door Issue, Enclosure - Top Door Issue, Screen - Visible Backlight, Media Player - Faulty
+                    <textarea id="confIssueMappingOps" rows="8" oninput="updateLivePreview()" placeholder="Hardware Issue : Media Player - Auto On/Off, Display Cable Faulty&#10;Software Issue : Content Sync Issue, Error Msg on screen">Hardware Issue : Media Player - Auto On/Off, Display Cable Faulty, Network Cable Faulty, Screen Visibility Issue, Power Cable Faulty, Led - Alignment Issue, Enclosure - Lock Issue, Mcu - Lock Issue, Led - Pixel Damage Issue, Mcu - Tray Issue, Faulty Mcu Ports/Socket, Enclosure - Bottom Door Issue, Enclosure - Top Door Issue, Screen - Visible Backlight, Media Player - Faulty
 Software Issue : Software Issue (Lemma), Software Issue (Scala), Software Issue (Windows), Content Sync Issue, Content Stuck Issue, Incorrect Resolution, Error Msg on screen
 Power Issue : Power Issue (Dial), Power Issue (Timdaa), Faulty ELCB, ELCB Tripping
 Network Issue : Network Issue (Dial), Network Issue (Timdaa), LAN Port Faulty (MP), LAN Port Faulty (Patch Cord), LAN Cable Faulty</textarea>
+
+                    <label style="margin-top: 20px;">Quality Issue Category & Description Mapping</label>
+                    <textarea id="confIssueMappingQA" rows="6" oninput="updateLivePreview()" placeholder="Cleanliness : Floor not mopped, Trash bin full&#10;Lighting : Light bulb broken, Area too dark">Cleanliness : Floor not mopped, Trash bin full
+Lighting : Light bulb broken, Area too dark</textarea>
                     
                     <button class="save" id="btnConfig" onclick="saveFields()">Push Configuration</button>
                     <div id="configStatus" class="status-msg"></div>
@@ -560,6 +579,7 @@ Network Issue : Network Issue (Dial), Network Issue (Timdaa), LAN Port Faulty (M
         const cname = document.getElementById('brandClientName').value;
         const color = document.getElementById('brandColor').value;
         const emails = document.getElementById('brandEmails').value.trim(); // NEW
+        const gemini = document.getElementById('brandGemini') ? document.getElementById('brandGemini').value.trim() : "";
         const status = document.getElementById('brandStatus');
 
         if (!cid) return alert("Enter Client ID");
@@ -574,7 +594,8 @@ Network Issue : Network Issue (Dial), Network Issue (Timdaa), LAN Port Faulty (M
                     clientName: cname, 
                     primaryColor: color, 
                     logoData: base64Logo,
-                    notificationEmails: emails // ADDED FIELD
+                    notificationEmails: emails, // ADDED FIELD
+                    geminiKey: gemini
                 }) 
             });
             showStatus(status, "Step 1 Done! Client Created. Now go to Form Configuration.", "var(--success)");
@@ -585,7 +606,8 @@ Network Issue : Network Issue (Dial), Network Issue (Timdaa), LAN Port Faulty (M
 
     async function saveFields() {
         const cid = document.getElementById('confClientId').value.trim().toUpperCase();
-        const rawMapping = document.getElementById('confIssueMapping').value;
+        const rawOpsMapping = document.getElementById('confIssueMappingOps').value;
+        const rawQaMapping = document.getElementById('confIssueMappingQA').value;
         
         const lAsset = document.getElementById('confLabelAsset').value;
         const lTerm = document.getElementById('confLabelTerminal').value;
@@ -596,24 +618,34 @@ Network Issue : Network Issue (Dial), Network Issue (Timdaa), LAN Port Faulty (M
         if (!cid) return alert("Enter Client ID");
         
         // Parse mapping
-        const lines = rawMapping.split('\n');
-        const mapping = {};
-        const types = [];
-        
-        lines.forEach(line => {
-            if(line.includes(':')) {
-                const parts = line.split(':');
-                const type = parts[0].trim();
-                const descs = parts[1].split(',').map(d => d.trim()).filter(d => d);
-                if(type && descs.length > 0) {
-                    mapping[type] = descs;
-                    types.push(type);
+        function parseMapping(raw) {
+            const lines = raw.split('\n');
+            const map = {};
+            const arr = [];
+            lines.forEach(line => {
+                if(line.includes(':')) {
+                    const parts = line.split(':');
+                    const type = parts[0].trim();
+                    const descs = parts[1].split(',').map(d => d.trim()).filter(d => d);
+                    if(type && descs.length > 0) {
+                        map[type] = descs;
+                        arr.push(type);
+                    }
                 }
-            }
-        });
+            });
+            return { map, arr };
+        }
 
-        const issueTypesStr = types.join(', ');
-        const issueDescJson = JSON.stringify(mapping); // Store the mapping object directly
+        const opsData = parseMapping(rawOpsMapping);
+        const qaData = parseMapping(rawQaMapping);
+        
+        const combinedMapping = {
+            "Operations": opsData.map,
+            "Quality": qaData.map
+        };
+
+        const issueTypesStr = [...opsData.arr, ...qaData.arr].join(', ');
+        const issueDescJson = JSON.stringify(combinedMapping); // Store the mapping object directly
 
         toggleBtn('btnConfig', true, "Pushing...");
         try {
@@ -677,8 +709,9 @@ Network Issue : Network Issue (Dial), Network Issue (Timdaa), LAN Port Faulty (M
             document.getElementById('prevLogoTop').style.visibility = 'visible';
         }
 
-        const rawMapping = document.getElementById('confIssueMapping').value;
-        const lines = rawMapping.split('\n');
+        const rawOps = document.getElementById('confIssueMappingOps').value;
+        const rawQa = document.getElementById('confIssueMappingQA').value;
+        const lines = (rawOps + '\n' + rawQa).split('\n');
         currentPreviewMapping = {};
         
         lines.forEach(line => {
