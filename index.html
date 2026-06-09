@@ -3,31 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>QRlytics | Enterprise Audit</title>
+    <title>QRAnalytics | Enterprise Audit</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* --- PREMIUM DESIGN SYSTEM --- */
         :root { 
-            --brand-primary: #4f46e5; 
-            --brand-primary-hover: #4338ca;
-            --surface: rgba(255, 255, 255, 0.85);
-            --background: #f1f5f9; 
-            --text-main: #0f172a; 
-            --text-muted: #64748b; 
-            --border-color: rgba(226, 232, 240, 0.7); 
+            --brand-primary: #0056D2; 
+            --brand-primary-hover: #0044a8;
+            --surface: rgba(255, 255, 255, 0.95);
+            --background: #F8F9FA; 
+            --text-main: #111827; 
+            --text-muted: #6b7280; 
+            --border-color: rgba(209, 213, 219, 0.6); 
             
             --success-green: #10b981; 
             --danger-red: #ef4444;
             --warning-orange: #f59e0b;
-            --accent-orange: #f39c12; 
+            --accent-orange: #f59e0b; 
             
-            --primary-blue: #0f172a; 
-            --gradient-primary: linear-gradient(135deg, #4f46e5, #8b5cf6);
+            --primary-blue: #0056D2; 
+            --gradient-primary: linear-gradient(135deg, #0056D2, #0044a8);
             
             --radius-sm: 8px;
             --radius-md: 12px;
@@ -37,7 +37,7 @@
             --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
             --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
             --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            --shadow-focus: 0 0 0 4px rgba(79, 70, 229, 0.2);
+            --shadow-focus: 0 0 0 4px rgba(0, 86, 210, 0.2);
             
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --header-height: calc(70px + env(safe-area-inset-top, 0px));
@@ -55,7 +55,7 @@
         
         body { 
             background: var(--background); 
-            font-family: 'Inter', sans-serif; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
             margin: 0; 
             padding: 0; 
             height: 100vh; 
@@ -88,11 +88,11 @@
         .side-content { flex: 1; overflow-y: auto; padding: 32px; position: relative; }
 
         .brand-header-row {
-            background: #28292b !important; 
+            background: #ffffff !important; 
             display: grid;
-            grid-template-columns: 1fr 2fr 1fr;
+            grid-template-columns: 48px 1fr 48px;
             align-items: center;
-            padding: env(safe-area-inset-top, 0px) 32px 0 32px;
+            padding: env(safe-area-inset-top, 0px) 32px 0 0;
             height: var(--header-height);
             box-sizing: border-box;
             border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -101,27 +101,21 @@
         }
         .brand-header-row img { height: 32px; object-fit: contain; }
         .brand-header-row h1 { margin: 0; font-size: 16px; font-weight: 600; text-align: center; color: #ffffff;}
-        .header-right-brand { justify-self: end; }
-        
-        #logoutBtn {
-            background: rgba(255,255,255,0.1);
-            font-size: 12px;
-            font-weight: 600;
-            padding: 8px 16px;
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #ffffff;
-            cursor: pointer;
-            border-radius: var(--radius-md);
-            transition: var(--transition);
-        }
-        #logoutBtn:hover { background: rgba(255,255,255,0.2); border-color: #fca5a5; }
+
 
         .mobile-menu-btn { display: flex; align-items: center; justify-content: center; background: transparent; border: none; padding: 0; cursor: pointer; margin: 0; }
+        .mobile-only { display: none !important; }
+        @media (max-width: 850px) {
+            .mobile-only { display: flex !important; }
+        }
         .mobile-overlay { display: none; }
 
         .sidebar {
             flex: 0 0 260px;
-            background: #4f5051 !important; 
+            background: rgba(15, 23, 42, 0.8) !important; 
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             flex-direction: column;
             transition: var(--transition);
@@ -131,6 +125,8 @@
             white-space: nowrap;
         }
         .sidebar.collapsed { flex: 0 0 0px !important; width: 0 !important; min-width: 0 !important; opacity: 0; }
+        body:has(#mainSidebar.collapsed) #topHeader .mobile-only { display: flex !important; }
+        body:has(#mainSidebar.collapsed) .global-footer { display: none !important; }
 
         .sidebar-header {
             padding: 32px 24px;
@@ -163,7 +159,8 @@
 
         .side-hero {
             flex: 0 0 40%;
-            background: #4f5051 !important; 
+            background: #ffffff !important; 
+            border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -175,6 +172,133 @@
         }
 
         .side-hero img { width: 80%; max-width: 220px; margin-bottom: 32px; }
+
+        /* Login Layout Redesign */
+        #masterSplitWrapper:has(#loginSection:not(.hidden)) {
+            background: radial-gradient(circle at 50% 50%, #061121 0%, #000000 100%) !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        #masterSplitWrapper:has(#loginSection:not(.hidden))::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background-image: linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px; background-position: center center; z-index: 0;
+        }
+        #masterSplitWrapper:has(#loginSection:not(.hidden))::after {
+            content: ''; position: absolute; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+            top: -200px; left: -200px; z-index: 0;
+        }
+        #masterSplitWrapper:has(#loginSection:not(.hidden)) #mobileOverlay {
+            display: none !important;
+        }
+        
+        #masterSplitWrapper:has(#loginSection:not(.hidden)) .side-content {
+            background: rgba(10, 15, 25, 0.8) !important;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 243, 255, 0.1);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            padding: 0; display: flex; flex-direction: column; justify-content: center; z-index: 2;
+        }
+
+        @media (min-width: 851px) {
+            #masterSplitWrapper:has(#loginSection:not(.hidden)) .side-hero {
+                flex: 0 0 420px;
+                height: 520px;
+                background: rgba(6, 17, 33, 0.6) !important;
+                backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(0, 243, 255, 0.2);
+                box-shadow: 0 0 30px rgba(0, 243, 255, 0.1), inset 0 0 20px rgba(0, 243, 255, 0.05);
+                border-radius: 12px 0 0 12px;
+                padding: 60px 40px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                z-index: 2;
+            }
+            #masterSplitWrapper:has(#loginSection:not(.hidden)) .side-content {
+                flex: 0 0 420px;
+                height: 520px;
+                border-radius: 0 12px 12px 0;
+                border-left: none;
+            }
+        }
+        #masterSplitWrapper:has(#loginSection:not(.hidden)) #loginSection {
+            margin-top: 0;
+            padding: 50px 40px;
+            background: transparent;
+            box-shadow: none;
+            border: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .enterprise-badge {
+            display: inline-block;
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid #00f3ff;
+            color: #00f3ff;
+            font-family: 'Courier New', Courier, monospace;
+            text-shadow: 0 0 8px rgba(0, 243, 255, 0.6);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            padding: 6px 16px;
+            border-radius: 4px;
+            margin-bottom: 24px;
+            align-self: flex-start;
+        }
+
+        #masterSplitWrapper:has(#loginSection:not(.hidden)) .qrlytics-title-header {
+            color: #ffffff !important;
+            text-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
+            letter-spacing: 2px;
+        }
+
+        #masterSplitWrapper:has(#loginSection:not(.hidden)) p {
+            color: #94a3b8 !important;
+        }
+        
+        #masterSplitWrapper:has(#loginSection:not(.hidden)) input {
+            background: rgba(0, 0, 0, 0.5) !important;
+            border: 1px solid rgba(0, 243, 255, 0.3) !important;
+            color: #00f3ff !important;
+            border-radius: 4px !important;
+            transition: all 0.3s ease;
+        }
+
+        #masterSplitWrapper:has(#loginSection:not(.hidden)) input:focus {
+            border-color: #00f3ff !important;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3) !important;
+            outline: none;
+        }
+
+        #masterSplitWrapper:has(#loginSection:not(.hidden)) input::placeholder {
+            color: rgba(0, 243, 255, 0.4) !important;
+        }
+        
+        #masterSplitWrapper:has(#loginSection:not(.hidden)) #loginBtn {
+            background: linear-gradient(90deg, #00f3ff 0%, #3b82f6 100%) !important;
+            color: #000000 !important;
+            border-radius: 4px !important;
+            text-shadow: none;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        #masterSplitWrapper:has(#loginSection:not(.hidden)) #loginBtn:hover {
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.6);
+            transform: translateY(-1px);
+        }
 
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -243,7 +367,7 @@
             border: 1px solid var(--border-color); 
             border-radius: var(--radius-md); 
             box-sizing: border-box; 
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 14px;
             color: var(--text-main);
             background: var(--surface);
@@ -402,7 +526,7 @@
         .dash-table tbody tr:hover { background: #f8fafc; }
 
         .global-footer { 
-            background: #28292b !important; 
+            background: #0f172a !important; 
             color: rgba(255,255,255,0.7); 
             text-align: center; 
             padding: 16px; 
@@ -426,15 +550,15 @@
             .split-wrapper { flex-direction: column; }
             .side-hero { display: none; }
             
-            .brand-header-row { padding: env(safe-area-inset-top, 0px) 16px 0 16px; grid-template-columns: auto 1fr auto; }
+            .brand-header-row { background: #ffffff !important; padding: env(safe-area-inset-top, 0px) 16px 0 16px; grid-template-columns: 48px 1fr 48px; }
+            .brand-header-row .qrlytics-title-header { display: block; font-size: 24px; }
             .mobile-menu-btn { display: flex; align-items: center; justify-content: center; }
 
             .sidebar { 
                 position: fixed; 
-                top: var(--header-height); 
+                top: 0; 
                 left: -260px; 
-                height: calc(100vh - 65px); 
-                height: calc(100dvh - var(--header-height)); 
+                height: 100vh; 
                 width: 260px;
                 z-index: 1002; 
                 transition: left 0.3s ease; 
@@ -477,6 +601,18 @@
 
             .side-content { padding: 16px; }
             
+            #masterSplitWrapper:has(#loginSection:not(.hidden)) .side-content {
+                flex: 1;
+                width: 100%;
+                height: auto;
+                border-radius: 16px;
+                max-width: 450px;
+                box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            }
+            #masterSplitWrapper:has(#loginSection:not(.hidden)) {
+                padding: 20px;
+            }
+            
             #loginSection { 
                 margin-top: 5vh; 
                 width: 100%; 
@@ -504,59 +640,94 @@
             
             .options-grid { grid-template-columns: 1fr; }
             .sub-nav-tabs { flex-direction: column; }
+            
+            #portalCardsContainer { flex-direction: column; gap: 16px !important; align-items: center; }
+            #portalCardsContainer .portal-card {
+                width: 100%;
+                max-width: 320px;
+                padding: 16px;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                text-align: left;
+                gap: 16px;
+                margin: 0;
+            }
+            #portalCardsContainer .portal-icon {
+                width: 50px;
+                height: 50px;
+                margin-bottom: 0;
+                flex-shrink: 0;
+                border-radius: 12px;
+            }
+            #portalCardsContainer .portal-icon svg { width: 24px; height: 24px; }
+            #portalCardsContainer .portal-card h3 {
+                font-size: 16px;
+                margin-bottom: 4px;
+            }
+            #portalCardsContainer .portal-card p {
+                font-size: 12px;
+                line-height: 1.4;
+            }
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .qrlytics-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 48px;
+            font-weight: 900;
+            margin: 0 0 16px 0;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            background: linear-gradient(270deg, var(--brand-primary), var(--success-green), var(--brand-primary));
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease infinite;
+            text-align: center;
+        }
+        .qrlytics-title-header {
+            font-family: 'Outfit', sans-serif;
+            font-size: 48px;
+            font-weight: 900;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            background: linear-gradient(270deg, var(--brand-primary), var(--success-green), var(--brand-primary));
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease infinite;
+            text-align: center;
+        }
+        .portal-center-content { padding-top: 4vh; }
+        @media (max-width: 850px) {
+            .qrlytics-title {
+                font-size: 36px;
+                margin: 0 0 24px 0;
+            }
+            .portal-header-logo { padding: 16px !important; }
+            .portal-header-logo .qrlytics-title { font-size: 28px !important; margin: 0 !important; }
+            .portal-header-logo img { height: 28px !important; }
+            .portal-center-content { padding-top: 10vh !important; }
         }
     </style>
 </head>
 <body>
-
-<header class="brand-header-row hidden" id="topHeader">
-    <div style="display:flex; align-items:center; gap:16px; justify-self: start;">
-        <button id="mobileMenuBtn" class="mobile-menu-btn" onclick="toggleMobileMenu()">
-            <svg width="24" height="24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-        </button>
-        <img src="logo2.png" id="dynamicLogo1" alt="Logo" style="justify-self: auto;">
-    </div>
-    <h1 id="clientPortalName">Client Portal</h1>
-    <div class="header-right-brand">
-        <button id="logoutBtn" onclick="performLogout()">Sign Out</button>
-    </div>
-</header>
-
-        <div id="portalSelectionSection" class="hidden" style="width:100%; height:100%; position:fixed; top:0; left:0; z-index:2000; background: var(--background); display:flex; flex-direction:column; justify-content:center; align-items:center; padding: 20px; box-sizing:border-box; overflow-y:auto;">
-            <div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); padding: 16px 32px; border-radius: var(--radius-lg); margin-bottom: 32px; display: inline-block; box-shadow: 0 10px 25px rgba(0,0,0,0.15);"><img src="logo2.png" id="portalLogo" alt="Logo" style="height:45px; display: block;"></div>
-            <h2 style="font-size:36px; margin-top:0; margin-bottom:12px; background:-webkit-linear-gradient(45deg, #4f46e5, #8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:800; letter-spacing:-1px; text-align:center;">Select Your Workspace</h2>
-            <p style="color:var(--text-muted); margin-bottom:48px; font-size:16px; font-weight: 500; text-align:center;">Choose a portal to load the associated data and workflows.</p>
-            <div style="display:flex; gap:32px; flex-wrap:wrap; justify-content:center;">
-                <div class="portal-card" onclick="selectPortal('Operations')">
-                    <div class="portal-icon" style="background: linear-gradient(135deg, #3b82f6, #2563eb);"><svg width="32" height="32" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg></div>
-                    <h3>Operations</h3>
-                    <p>Manage daily operational audits, assets, and terminal issues.</p>
-                </div>
-                <div class="portal-card" onclick="selectPortal('Quality')">
-                    <div class="portal-icon" style="background: linear-gradient(135deg, #10b981, #059669);"><svg width="32" height="32" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
-                    <h3>Quality</h3>
-                    <p>Ensure hygiene, cleanliness, and strict quality compliance.</p>
-                </div>
-                <div class="portal-card" onclick="selectPortal('Attendance')">
-                    <div class="portal-icon" style="background: linear-gradient(135deg, #8b5cf6, #6366f1);"><svg width="32" height="32" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
-                    <h3>Attendance</h3>
-                    <p>Mark daily attendance via QR code scanning securely.</p>
-                </div>
-            </div>
-        </div>
-
-<div class="split-wrapper" id="masterSplitWrapper">
-    <div class="side-hero" id="loginHero">
-        <img src="logo2.png" id="heroLogo" alt="Logo">
-        <h2 id="heroTitle" style="margin:0; font-weight:700; font-size: 28px; letter-spacing: -0.5px;">Quality Portal</h2>
-        <p id="heroSub" style="opacity:0.8; font-size:15px; margin-top: 12px; font-weight: 400;">Enterprise Management System</p>
-    </div>
-
-    <div id="mobileOverlay" class="mobile-overlay" onclick="toggleMobileMenu()"></div>
-
+<div style="display: flex; height: 100vh; overflow: hidden; width: 100vw;">
     <aside class="sidebar hidden" id="mainSidebar">
         <div class="sidebar-header">
-            <h3>Enterprise Solution</h3>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                <img src="logo2.png" id="dynamicLogo1" alt="Logo" style="width: 120px; max-width: 100%; margin-bottom: 24px; filter: brightness(0) invert(1);">
+                <button class="mobile-menu-btn" style="color: white; border: none; background: transparent; cursor: pointer; padding: 0; margin-top: 4px;" onclick="toggleMobileMenu()">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+            </div>
+            <h3 id="clientPortalName">Enterprise Solution</h3>
         </div>
         <nav class="sidebar-menu">
             <a class="menu-item active" id="menuReport" onclick="switchTab('report')">
@@ -576,31 +747,92 @@
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
                 Switch Portal
             </a>
+            <a class="menu-item" onclick="performLogout()" style="border-radius:0; opacity:0.8; color: #fca5a5;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                Sign Out
+            </a>
         </nav>
     </aside>
+
+    <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0;">
+        <header class="brand-header-row hidden" id="topHeader">
+            <div style="display:flex; align-items:center;">
+                <button id="mobileMenuBtn" class="mobile-menu-btn mobile-only" onclick="toggleMobileMenu()">
+                    <svg width="24" height="24" fill="none" stroke="var(--text-main)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                </button>
+            </div>
+            <h1 class="qrlytics-title-header" style="justify-self: center;">QRAnalytics</h1>
+            <div></div>
+        </header>
+
+        <div id="portalSelectionSection" class="hidden" style="width:100%; height:100%; position:fixed; top:0; left:0; z-index:2000; background: var(--background); display:flex; flex-direction:column; box-sizing:border-box; overflow-y:auto;">
+            
+            <!-- Header Logo Section -->
+            <div class="portal-header-logo" style="width: 100%; padding: 32px 40px; box-sizing: border-box; display: flex; justify-content: center; align-items: center;">
+                <h1 class="qrlytics-title" style="margin: 0; font-size: 32px;">QRAnalytics</h1>
+            </div>
+
+            <!-- Center Content -->
+            <div class="portal-center-content" style="flex: 1; display:flex; flex-direction:column; justify-content:flex-start; align-items:center; padding: 20px;">
+                <h2 style="font-size:36px; margin-top:0; margin-bottom:8px; background:-webkit-linear-gradient(45deg, #4f46e5, #8b5cf6); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:800; letter-spacing:-1px; text-align:center;">Select Your Workspace</h2>
+                <p style="color:var(--text-muted); margin-bottom:24px; font-size:16px; font-weight: 500; text-align:center;">Choose a portal to load the associated data and workflows.</p>
+                <div id="portalCardsContainer" style="display:flex; gap:32px; flex-wrap:wrap; justify-content:center; width: 100%; max-width: 1200px;">
+                <div class="portal-card" onclick="selectPortal('Operations')">
+                    <div class="portal-icon" style="background: linear-gradient(135deg, #3b82f6, #2563eb);"><svg width="32" height="32" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg></div>
+                    <h3>Operations</h3>
+                    <p>Manage daily operational audits, assets, and terminal issues.</p>
+                </div>
+                <div class="portal-card" onclick="selectPortal('Quality')">
+                    <div class="portal-icon" style="background: linear-gradient(135deg, #10b981, #059669);"><svg width="32" height="32" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+                    <h3>Quality</h3>
+                    <p>Ensure hygiene, cleanliness, and strict quality compliance.</p>
+                </div>
+                <div class="portal-card" onclick="selectPortal('Attendance')">
+                    <div class="portal-icon" style="background: linear-gradient(135deg, #8b5cf6, #6366f1);"><svg width="32" height="32" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+                    <h3>Attendance</h3>
+                    <p>Mark daily attendance via QR code scanning securely.</p>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="split-wrapper" id="masterSplitWrapper">
+            <div class="side-hero" id="loginHero">
+                <div class="enterprise-badge">ENTERPRISE ACCESS</div>
+                <h2 class="qrlytics-title-header" style="text-align: left; margin-bottom: 16px; font-size: 56px; color: white;">QRAnalytics</h2>
+                <h3 id="heroTitle" style="margin:0; font-weight:700; font-size: 20px; letter-spacing: -0.5px; color: white; display: none;">Quality Portal</h3>
+                <p id="heroSub" style="color: rgba(255,255,255,0.8); font-size:15px; margin-top: 8px; font-weight: 400; line-height: 1.6;">Advanced Operations and Quality Monitoring Software. Log in to track real-time issues, resolve tickets faster, and visualize smart data on your AI-driven dashboard.</p>
+            </div>
+
+            <div id="mobileOverlay" class="mobile-overlay" onclick="toggleMobileMenu()"></div>
 
     <main class="side-content">
         
         <div id="loginSection" class="container">
             <div style="text-align: center; margin-bottom: 32px;">
-                <img src="logo2.png" alt="QRlytics Logo" class="mobile-login-logo">
-                <h2 style="color: var(--text-main);">Welcome Back</h2>
-                <p style="color: var(--text-muted); font-size: 14px; margin-top: -16px;">Sign in to your enterprise workspace</p>
+                <h1 class="qrlytics-title-header mobile-only" style="font-size: 36px; margin-bottom: 16px; justify-content: center;">QRAnalytics</h1>
+                <h2 class="qrlytics-title-header" style="color: #ffffff; -webkit-text-fill-color: #ffffff; font-size: 26px; margin-bottom: 8px;">Welcome</h2>
+                <p style="color: #64748b; font-size: 13px; margin-top: 0;">Please enter your credentials to continue</p>
             </div>
 
-            <label>Username</label>
-            <input type="text" id="username" placeholder="Enter your username">
+            <input type="text" id="username" placeholder="Username" style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; width: 100%; box-sizing: border-box; margin-bottom: 16px; font-size: 14px; background: #f8fafc;" onkeypress="if(event.key === 'Enter') document.getElementById('password').focus()">
             
-            <label style="margin-top: 20px;">Password</label>
-            <input type="password" id="password" placeholder="Enter your password">
+            <div style="position: relative; width: 100%; display: block;">
+                <input type="password" id="password" placeholder="Password" style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; width: 100%; box-sizing: border-box; padding-right: 40px; font-size: 14px; background: #f8fafc;" onkeypress="if(event.key === 'Enter') performLogin()">
+                <button type="button" onclick="const p = document.getElementById('password'); p.type = p.type === 'password' ? 'text' : 'password';" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 0; color: #00f3ff; display: flex; align-items: center; justify-content: center; height: 32px; width: 32px; z-index: 10;">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
+            </div>
             
-            <label style="display:flex; align-items:center; font-weight:500; gap:10px; margin-top:24px; font-size:13px; cursor:pointer;">
+            <label style="display:flex; align-items:center; font-weight:500; gap:10px; margin-top:16px; margin-bottom: 24px; font-size:12px; cursor:pointer; color: #64748b;">
                 <input type="checkbox" id="rememberMe"> Remember my session
             </label>
 
-            <button id="loginBtn" onclick="performLogin()" style="margin-top: 32px;">Sign In</button>
+            <button id="loginBtn" onclick="performLogin()" style="width: 100%; background: #2563eb; color: white; border: none; border-radius: 8px; padding: 14px; font-weight: 600; font-size: 14px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.5px;">SIGN IN &rarr;</button>
             <div id="loginLoader"></div>
             <p id="loginError" style="color: var(--danger-red); display:none; text-align:center; font-weight:500; font-size: 13px; margin-top:20px; background: #fef2f2; padding: 12px; border-radius: var(--radius-md); border: 1px solid #fecaca;">Access Denied. Please check your credentials.</p>
+            
+            <div style="text-align: center; margin-top: auto; padding-top: 32px; font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">&copy; 2026 QRAnalytics | SECURE LOGIN</div>
         </div>
 
         <div id="attendanceSection" class="container hidden">
@@ -787,10 +1019,11 @@
                 <div><label style="margin-top:0;">Media Type</label><select id="filterMedia" onchange="applyFilters()"><option value="">All Types</option></select></div>
                 <div><label style="margin-top:0;">Package</label><select id="filterPackage" onchange="applyFilters()"><option value="">All Packages</option></select></div>
                 <div><label style="margin-top:0;">Issue Type</label><select id="filterIssueType" onchange="applyFilters()"><option value="">All Types</option></select></div>
-                <div style="grid-column: span 2;"><label style="margin-top:0;">Issue Description</label><select id="filterIssueDesc" onchange="applyFilters()"><option value="">All Descriptions</option></select></div>
+                <div><label style="margin-top:0;">Issue Desc</label><select id="filterIssueDesc" onchange="applyFilters()"><option value="">All Descriptions</option></select></div>
+                <div><label style="margin-top:0;">Status</label><select id="filterStatus" onchange="applyFilters()"><option value="">All Statuses</option><option value="Open">Open</option><option value="Closed">Closed</option></select></div>
                 <div style="grid-column: span 2;"><label style="margin-top:0; visibility: hidden;">Search</label>
                     <div style="display:flex; gap:8px;">
-                        <input type="text" id="assetSearch" style="margin-top:0; flex:1;" placeholder="Asset ID...">
+                        <input type="text" id="assetSearch" style="margin-top:0; flex:1;" placeholder="Asset ID..." oninput="renderAssetTrend()" onkeypress="if(event.key === 'Enter') { event.preventDefault(); renderAssetTrend(); }">
                         <button onclick="renderAssetTrend()" style="margin-top:0; width:auto; padding:0 12px; height: 38px;">Go</button>
                         <button onclick="resetFilters()" class="btn-secondary" style="margin-top:0; width:auto; padding:0 12px; height: 38px;">Reset</button>
                     </div>
@@ -831,7 +1064,7 @@
 </div>
 
 <footer class="global-footer">
-    &copy; 2026 Powered by QRlytics | Designed & Developed By Pankaj Sharma<br>
+    &copy; 2026 Powered by QRAnalytics | Designed & Developed By Pankaj Sharma<br>
     <a href="privacypolicy.html" style="color: var(--primary-blue); text-decoration: none; font-size: 12px; margin-top: 8px; display: inline-block; font-weight: 500;">Privacy Policy</a>
 </footer>
 
@@ -847,7 +1080,7 @@
         }
 
         if (!state) {
-            sessionStorage.removeItem('qrl_session'); 
+            localStorage.removeItem('qrl_session'); 
             document.getElementById('loginSection').classList.remove('hidden');
             document.getElementById('loginHero').classList.remove('hidden');
             document.getElementById('portalSelectionSection').classList.add('hidden');
@@ -869,6 +1102,10 @@
             document.getElementById('masterSplitWrapper').style.display = 'flex';
             document.getElementById('topHeader').classList.remove('hidden');
             document.getElementById('mainSidebar').classList.remove('hidden'); 
+            
+            if (state.tab) {
+                switchTab(state.tab, true);
+            }
         }
     });
 
@@ -934,7 +1171,7 @@
     }
 
     window.onload = () => {
-        const sessionData = sessionStorage.getItem('qrl_session');
+        const sessionData = localStorage.getItem('qrl_session');
         if(sessionData) {
             const data = JSON.parse(sessionData);
             currentUser = data.user; config = data.config;
@@ -946,12 +1183,14 @@
                 history.replaceState({ view: 'portals' }, '');
             }
 
-            const storedPortal = sessionStorage.getItem('qrl_portal');
+            const storedPortal = localStorage.getItem('qrl_portal');
             if (storedPortal) {
+                const currentTab = localStorage.getItem('qrl_section') || 'report';
                 if (!history.state || history.state.view !== 'main') {
-                    history.pushState({ view: 'main', portal: storedPortal }, '');
+                    history.pushState({ view: 'main', portal: storedPortal, tab: currentTab }, '');
                 }
                 selectPortal(storedPortal, true, true);
+                switchTab(currentTab, true);
             } else {
                 showPortalSelection(true);
             }
@@ -1023,8 +1262,8 @@
                     localStorage.setItem('qrl_u', u); localStorage.setItem('qrl_p', p);
                 }
                 currentUser = res.user; config = res.config;
-                sessionStorage.setItem('qrl_session', JSON.stringify({user: currentUser, config: config}));
-                sessionStorage.setItem('qrl_section', 'report');
+                localStorage.setItem('qrl_session', JSON.stringify({user: currentUser, config: config}));
+                localStorage.setItem('qrl_section', 'report');
                 history.pushState({ view: 'portals' }, '');
                 location.reload();
             } else { 
@@ -1081,7 +1320,7 @@
         // Options are populated when audit type is selected
     }
 	
-    function performLogout() { if(confirm("Sign out?")) { sessionStorage.clear(); location.reload(); } }
+    function performLogout() { if(confirm("Sign out?")) { localStorage.clear(); sessionStorage.clear(); location.reload(); } }
 
     function toggleMobileMenu() {
         const sidebar = document.getElementById('mainSidebar');
@@ -1098,13 +1337,17 @@
         }
     }
 
-    function switchTab(mode) {
+    function switchTab(mode, fromPopState = false) {
         if (!currentUser) return;
         const role = currentUser.role || '';
         if (role === 'OpsTeam' && (mode === 'close' || mode === 'dash')) return;
         if (role === 'TL' && mode === 'dash') return;
 
-        sessionStorage.setItem('qrl_section', mode);
+        localStorage.setItem('qrl_section', mode);
+        
+        if (!fromPopState) {
+            history.pushState({ view: 'main', tab: mode, portal: currentAuditType }, '');
+        }
         document.querySelectorAll('.side-content > .container').forEach(c => c.classList.add('hidden'));
         document.getElementById(mode + 'Section').classList.remove('hidden');
         document.querySelectorAll('.menu-item').forEach(b => b.classList.remove('active'));
@@ -1165,6 +1408,7 @@
         if (document.getElementById('filterPackage')) document.getElementById('filterPackage').value = "";
         if (document.getElementById('filterIssueType')) document.getElementById('filterIssueType').value = "";
         if (document.getElementById('filterIssueDesc')) document.getElementById('filterIssueDesc').value = "";
+        if (document.getElementById('filterStatus')) document.getElementById('filterStatus').value = "";
         if (document.getElementById('assetSearch')) document.getElementById('assetSearch').value = "";
         
         dashStartDate = null;
@@ -1186,6 +1430,7 @@
         const fp = document.getElementById('filterPackage') ? document.getElementById('filterPackage').value : '';
         const fit = document.getElementById('filterIssueType') ? document.getElementById('filterIssueType').value : '';
         const fid = document.getElementById('filterIssueDesc') ? document.getElementById('filterIssueDesc').value : '';
+        const fstatus = document.getElementById('filterStatus') ? document.getElementById('filterStatus').value : '';
         
         const catData = rawData.filter(i => getAuditType(i) === currentDashCategory);
 
@@ -1195,6 +1440,12 @@
             if (except !== 'Package' && fp && row.Package !== fp) return false;
             if (except !== 'IssueType' && fit && row.Issue_Type !== fit) return false;
             if (except !== 'IssueDesc' && fid && row.Issue_Description !== fid) return false;
+            if (except !== 'Status' && fstatus) {
+                const s = (row.Current_Status || '').toLowerCase();
+                const isClosed = s === 'closed' || s === 'resolved';
+                if (fstatus === 'Open' && isClosed) return false;
+                if (fstatus === 'Closed' && !isClosed) return false;
+            }
             if (except !== 'Date') {
                 if (dashStartDate && dashEndDate) {
                     const rowDate = new Date(row.Reported_Timestamp);
@@ -1232,6 +1483,7 @@
         const fp = document.getElementById('filterPackage') ? document.getElementById('filterPackage').value : '';
         const fit = document.getElementById('filterIssueType') ? document.getElementById('filterIssueType').value : '';
         const fid = document.getElementById('filterIssueDesc') ? document.getElementById('filterIssueDesc').value : '';
+        const fstatus = document.getElementById('filterStatus') ? document.getElementById('filterStatus').value : '';
 
         const filtered = rawData.filter(i => {
             if (getAuditType(i) !== currentDashCategory) return false;
@@ -1240,6 +1492,12 @@
             if (fp && i.Package !== fp) return false;
             if (fit && i.Issue_Type !== fit) return false;
             if (fid && i.Issue_Description !== fid) return false;
+            if (fstatus) {
+                const s = (i.Current_Status || '').toLowerCase();
+                const isClosed = s === 'closed' || s === 'resolved';
+                if (fstatus === 'Open' && isClosed) return false;
+                if (fstatus === 'Closed' && !isClosed) return false;
+            }
             if (dashStartDate && dashEndDate) {
                 const rowDate = new Date(i.Reported_Timestamp);
                 rowDate.setHours(0,0,0,0);
@@ -1257,7 +1515,7 @@
     function renderAssetTrend() {
         const code = document.getElementById('assetSearch').value.trim().toUpperCase();
         const catData = rawData.filter(i => getAuditType(i) === currentDashCategory);
-        const filtered = code ? catData.filter(i => i.Asset_Code && i.Asset_Code.toString().toUpperCase() === code) : catData;
+        const filtered = code ? catData.filter(i => i.Asset_Code && i.Asset_Code.toString().toUpperCase().includes(code)) : catData;
         renderDashboard(filtered, !!code, code);
     }
 
@@ -1559,10 +1817,10 @@
         currentAuditType = type;
         currentListCategory = type;
         currentDashCategory = type;
-        sessionStorage.setItem('qrl_portal', type);
+        localStorage.setItem('qrl_portal', type);
 
         if (!isReload && !fromPopState) {
-            history.pushState({ view: 'main', portal: type }, '');
+            history.pushState({ view: 'main', tab: 'report', portal: type }, '');
         }
 
         document.getElementById('portalSelectionSection').classList.add('hidden');
@@ -1857,5 +2115,7 @@
     }
 
 </script>
+</div>
+</div>
 </body>
 </html>
