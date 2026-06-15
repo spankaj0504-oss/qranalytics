@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* --- PREMIUM DESIGN SYSTEM --- */
         :root { 
@@ -43,6 +43,14 @@
             --header-height: calc(70px + env(safe-area-inset-top, 0px));
         }
         
+        /* Issue Age Dual Slider */
+        .dual-slider-container { position: relative; height: 30px; margin-top: 5px; }
+        .dual-slider-track { position: absolute; top: 13px; left: 0; right: 0; height: 4px; background: #e2e8f0; border-radius: 2px; }
+        .dual-slider-fill { position: absolute; top: 13px; left: 0; right: 0; height: 4px; background: var(--brand-primary); border-radius: 2px; }
+        .dual-slider-input { position: absolute; top: 5px; left: 0; width: 100%; -webkit-appearance: none; appearance: none; background: transparent; pointer-events: none; margin: 0; padding: 0 !important; border: none !important; box-shadow: none !important; height: 20px !important; outline: none !important; }
+        .dual-slider-input::-webkit-slider-thumb { pointer-events: auto; -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--brand-primary); border: 2px solid white; box-shadow: var(--shadow-sm); cursor: pointer; position: relative; z-index: 10; }
+        .dual-slider-input::-moz-range-thumb { pointer-events: auto; width: 18px; height: 18px; border-radius: 50%; background: var(--brand-primary); border: 2px solid white; box-shadow: var(--shadow-sm); cursor: pointer; position: relative; z-index: 10; }
+
         .glass-panel {
             background: var(--surface);
             backdrop-filter: blur(16px);
@@ -467,10 +475,18 @@
             gap: 12px; background: var(--surface); padding: 16px; 
             border-radius: var(--radius-lg); margin-bottom: 24px; 
             border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);
-            align-items: end;
+            align-items: end; position: relative; z-index: 100;
         }
         .filter-row label { font-size: 12px; margin-bottom: 4px; display: block; font-weight: 600; color: var(--text-muted); }
-        .filter-row input, .filter-row select { padding: 10px 12px; font-size: 13px; height: 38px; }
+                .filter-row input, .filter-row select { padding: 10px 12px; font-size: 13px; height: 38px; }
+        .multi-select-wrapper { position: relative; width: 100%; display: block; }
+        .multi-select-box { padding: 0 12px; font-size: 13px; height: 38px; border: 1px solid var(--border-color); border-radius: var(--radius-md); background: var(--surface); cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; color: var(--text-color); white-space: nowrap; overflow: hidden; }
+        .multi-select-box::after { content: '▼'; font-size: 10px; margin-left: 8px; opacity: 0.6; flex-shrink: 0; }
+        .multi-select-dropdown { position: absolute; top: 100%; left: 0; min-width: 100%; background: var(--surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); z-index: 1000; display: none; max-height: 250px; overflow-y: auto; box-shadow: var(--shadow-lg); margin-top: 4px; padding: 4px 0; }
+        .multi-select-dropdown.show { display: block; }
+        .multi-select-option { padding: 8px 12px; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-color); margin: 0; white-space: nowrap; font-weight: normal; }
+        .multi-select-option:hover { background: rgba(79, 70, 229, 0.05); }
+        .multi-select-option input[type="checkbox"] { margin: 0; cursor: pointer; width: 16px; height: 16px; }
         .active-date-range { border-color: var(--brand-primary) !important; box-shadow: var(--shadow-focus) !important; background: rgba(79, 70, 229, 0.05) !important; color: var(--brand-primary) !important; font-weight: 600; }
         
         .chart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
@@ -1006,6 +1022,7 @@
             <div class="sub-nav-tabs">
                 <button id="btnOpen" class="sub-nav-btn active" onclick="setIssueView('open')">OPEN ISSUES</button>
                 <button id="btnClosed" class="sub-nav-btn" onclick="setIssueView('closed')">RESOLVED ISSUES</button>
+                <button id="btnSiteOk" class="sub-nav-btn" onclick="setIssueView('site ok')">SITE OK</button>
             </div>
             <div id="issueList">
                 <div style="text-align:center; padding:40px; color:var(--text-muted);">Loading workspace data...</div>
@@ -1015,13 +1032,25 @@
         <div id="dashSection" class="container hidden" style="background: transparent; box-shadow: none; padding: 0; border: none;">
             <div class="filter-row glass-panel" style="background: rgba(255,255,255,0.6);">
                 <div style="grid-column: span 2;"><label style="margin-top:0;">Date Range</label><input type="text" id="filterDateRange" placeholder="Select Dates..." style="margin-top:0; cursor: pointer; background: #fff;"></div>
-                <div><label style="margin-top:0;">Terminal</label><select id="filterTerminal" onchange="applyFilters()"><option value="">All Regions</option></select></div>
-                <div><label style="margin-top:0;">Media Type</label><select id="filterMedia" onchange="applyFilters()"><option value="">All Types</option></select></div>
-                <div><label style="margin-top:0;">Package</label><select id="filterPackage" onchange="applyFilters()"><option value="">All Packages</option></select></div>
-                <div><label style="margin-top:0;">Issue Type</label><select id="filterIssueType" onchange="applyFilters()"><option value="">All Types</option></select></div>
-                <div><label style="margin-top:0;">Issue Desc</label><select id="filterIssueDesc" onchange="applyFilters()"><option value="">All Descriptions</option></select></div>
-                <div><label style="margin-top:0;">Status</label><select id="filterStatus" onchange="applyFilters()"><option value="">All Statuses</option><option value="Open">Open</option><option value="Closed">Closed</option></select></div>
-                <div style="grid-column: span 2;"><label style="margin-top:0; visibility: hidden;">Search</label>
+                <div><label style="margin-top:0;">Terminal</label><select id="filterTerminal" multiple onchange="applyFilters()"></select></div>
+                <div><label style="margin-top:0;">Media Type</label><select id="filterMedia" multiple onchange="applyFilters()"></select></div>
+                <div><label style="margin-top:0;">Package</label><select id="filterPackage" multiple onchange="applyFilters()"></select></div>
+                <div><label style="margin-top:0;">Issue Type</label><select id="filterIssueType" multiple onchange="applyFilters()"></select></div>
+                <div><label style="margin-top:0;">Issue Desc</label><select id="filterIssueDesc" multiple onchange="applyFilters()"></select></div>
+                <div><label style="margin-top:0;">Status</label><select id="filterStatus" multiple onchange="applyFilters()"><option value="Open">Open</option><option value="Closed">Closed</option><option value="Site OK">Site OK</option></select></div>
+                                <div style="grid-column: span 3;">
+                    <label style="margin-top:0; display:flex; justify-content:space-between;">
+                        <span>Issue Age</span>
+                        <span id="issueAgeLabel" style="font-weight:600; color:var(--brand-primary); font-size:12px;">30 mins - 48 hrs</span>
+                    </label>
+                    <div class="dual-slider-container">
+                        <div class="dual-slider-track"></div>
+                        <div class="dual-slider-fill" id="issueAgeFill" style="left:0%; width:100%;"></div>
+                        <input type="range" class="dual-slider-input" id="issueAgeMin" min="0" max="7" value="0" step="1" oninput="updateIssueAgeSlider()" onchange="applyFilters()">
+                        <input type="range" class="dual-slider-input" id="issueAgeMax" min="0" max="7" value="7" step="1" oninput="updateIssueAgeSlider()" onchange="applyFilters()">
+                    </div>
+                </div>
+                <div style="grid-column: span 3;"><label style="margin-top:0; visibility: hidden;">Search</label>
                     <div style="display:flex; gap:8px;">
                         <input type="text" id="assetSearch" style="margin-top:0; flex:1;" placeholder="Asset ID..." oninput="renderAssetTrend()" onkeypress="if(event.key === 'Enter') { event.preventDefault(); renderAssetTrend(); }">
                         <button onclick="renderAssetTrend()" style="margin-top:0; width:auto; padding:0 12px; height: 38px;">Go</button>
@@ -1034,6 +1063,7 @@
                 <div class="kpi-card"><h3>Total Audits</h3><p id="kpiTotal">0</p></div>
                 <div class="kpi-card clickable" onclick="switchTab('close'); setIssueView('open');"><h3>Open Actions</h3><p id="kpiOpen">0</p></div>
                 <div class="kpi-card clickable" onclick="switchTab('close'); setIssueView('closed');"><h3>Resolved</h3><p id="kpiClosed">0</p></div>
+                <div class="kpi-card clickable" onclick="switchTab('close'); setIssueView('site ok');"><h3>Site OK</h3><p id="kpiSiteOk">0</p></div>
             </div>
             
             <div class="chart-box" id="historyContainer" style="margin-bottom: 24px; height: 350px;">
@@ -1110,6 +1140,94 @@
     });
 
     let currentUser = null, config = null, html5QrCode = null, rawData = [], currentView = 'open', dashboardCharts = {};
+
+    function updateMultiSelectBox(originalSelect, box) {
+        let selectedCount = 0;
+        let singleText = "";
+        Array.from(originalSelect.options).forEach(opt => {
+            if(opt.selected && opt.value !== "") {
+                selectedCount++;
+                singleText = opt.text || opt.value;
+            }
+        });
+        if(selectedCount === 0) {
+            box.innerText = "All";
+        } else if(selectedCount === 1) {
+            box.innerText = singleText;
+        } else {
+            box.innerText = `${selectedCount} selections`;
+        }
+    }
+
+    function buildMultiSelect(selectId) {
+        const originalSelect = document.getElementById(selectId);
+        if(!originalSelect) return;
+        
+        originalSelect.style.display = 'none';
+        
+        let wrapper = originalSelect.nextElementSibling;
+        if(!wrapper || !wrapper.classList.contains('multi-select-wrapper')) {
+            wrapper = document.createElement('div');
+            wrapper.className = 'multi-select-wrapper';
+            originalSelect.parentNode.insertBefore(wrapper, originalSelect.nextSibling);
+            
+            const box = document.createElement('div');
+            box.className = 'multi-select-box';
+            box.onclick = (e) => {
+                e.stopPropagation();
+                const isOpen = dropdown.classList.contains('show');
+                document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('show'));
+                if(!isOpen) dropdown.classList.add('show');
+            };
+            
+            const dropdown = document.createElement('div');
+            dropdown.className = 'multi-select-dropdown';
+            dropdown.onclick = (e) => e.stopPropagation();
+            
+            wrapper.appendChild(box);
+            wrapper.appendChild(dropdown);
+        }
+        
+        wrapper = originalSelect.nextElementSibling;
+        const box = wrapper.querySelector('.multi-select-box');
+        const dropdown = wrapper.querySelector('.multi-select-dropdown');
+        
+        dropdown.innerHTML = '';
+        
+        const options = Array.from(originalSelect.options);
+        options.forEach(opt => {
+            if(opt.value === "") return; // Skip "All" placeholder option
+            
+            const lbl = document.createElement('label');
+            lbl.className = 'multi-select-option';
+            
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.value = opt.value;
+            cb.checked = opt.selected;
+            cb.onchange = (e) => {
+                opt.selected = e.target.checked;
+                applyFilters();
+                updateMultiSelectBox(originalSelect, box);
+            };
+            
+            lbl.appendChild(cb);
+            lbl.appendChild(document.createTextNode(' ' + (opt.text || opt.value)));
+            dropdown.appendChild(lbl);
+        });
+        
+        updateMultiSelectBox(originalSelect, box);
+    }
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('show'));
+    });
+
+    function getSelectedValues(id) {
+        const el = document.getElementById(id);
+        if(!el) return [];
+        return Array.from(el.selectedOptions).map(opt => opt.value).filter(v => v !== "");
+    }
     let currentPhotoBase64 = "";
     
     let dynamicIssueMapping = {};
@@ -1171,6 +1289,7 @@
     }
 
     window.onload = () => {
+        buildMultiSelect("filterStatus");
         const sessionData = localStorage.getItem('qrl_session');
         if(sessionData) {
             const data = JSON.parse(sessionData);
@@ -1403,12 +1522,17 @@
     }
 
     function resetFilters() {
-        if (document.getElementById('filterTerminal')) document.getElementById('filterTerminal').value = "";
-        if (document.getElementById('filterMedia')) document.getElementById('filterMedia').value = "";
-        if (document.getElementById('filterPackage')) document.getElementById('filterPackage').value = "";
-        if (document.getElementById('filterIssueType')) document.getElementById('filterIssueType').value = "";
-        if (document.getElementById('filterIssueDesc')) document.getElementById('filterIssueDesc').value = "";
-        if (document.getElementById('filterStatus')) document.getElementById('filterStatus').value = "";
+        ['filterTerminal', 'filterMedia', 'filterPackage', 'filterIssueType', 'filterIssueDesc', 'filterStatus'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.value = "";
+                Array.from(el.options).forEach(opt => opt.selected = false);
+            }
+        });
+        if (document.getElementById('issueAgeMin')) document.getElementById('issueAgeMin').value = 0;
+        if (document.getElementById('issueAgeMax')) document.getElementById('issueAgeMax').value = 7;
+        if (typeof updateIssueAgeSlider === 'function') updateIssueAgeSlider();
+        
         if (document.getElementById('assetSearch')) document.getElementById('assetSearch').value = "";
         
         dashStartDate = null;
@@ -1422,29 +1546,67 @@
             document.getElementById('filterDateRange').nextElementSibling.classList.remove('active-date-range');
         }
         applyFilters();
+        
+        ['filterStatus'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) buildMultiSelect(id);
+        });
     }
 
     function syncFilters() {
-        const ft = document.getElementById('filterTerminal') ? document.getElementById('filterTerminal').value : '';
-        const fm = document.getElementById('filterMedia') ? document.getElementById('filterMedia').value : '';
-        const fp = document.getElementById('filterPackage') ? document.getElementById('filterPackage').value : '';
-        const fit = document.getElementById('filterIssueType') ? document.getElementById('filterIssueType').value : '';
-        const fid = document.getElementById('filterIssueDesc') ? document.getElementById('filterIssueDesc').value : '';
-        const fstatus = document.getElementById('filterStatus') ? document.getElementById('filterStatus').value : '';
+        const ft = getSelectedValues('filterTerminal');
+        const fm = getSelectedValues('filterMedia');
+        const fp = getSelectedValues('filterPackage');
+        const fit = getSelectedValues('filterIssueType');
+        const fid = getSelectedValues('filterIssueDesc');
+        const fstatus = getSelectedValues('filterStatus');
+        const now = new Date();
+        const minEl = document.getElementById('issueAgeMin');
+        const maxEl = document.getElementById('issueAgeMax');
+        let fageMin = 0, fageMax = 9999999;
+        if (minEl && maxEl) {
+            fageMin = issueAgeSteps[parseInt(minEl.value)].mins;
+            fageMax = issueAgeSteps[parseInt(maxEl.value)].mins;
+        }
         
         const catData = rawData.filter(i => getAuditType(i) === currentDashCategory);
 
         const matchExcept = (row, except) => {
-            if (except !== 'Terminal' && ft && row.Terminal !== ft) return false;
-            if (except !== 'Media' && fm && row.Media_Type !== fm) return false;
-            if (except !== 'Package' && fp && row.Package !== fp) return false;
-            if (except !== 'IssueType' && fit && row.Issue_Type !== fit) return false;
-            if (except !== 'IssueDesc' && fid && row.Issue_Description !== fid) return false;
-            if (except !== 'Status' && fstatus) {
+            if (except !== 'Terminal' && ft.length > 0 && !ft.includes(row.Terminal)) return false;
+            if (except !== 'Media' && fm.length > 0 && !fm.includes(row.Media_Type)) return false;
+            if (except !== 'Package' && fp.length > 0 && !fp.includes(row.Package)) return false;
+            if (except !== 'IssueType' && fit.length > 0 && !fit.includes(row.Issue_Type)) return false;
+            if (except !== 'IssueDesc' && fid.length > 0 && !fid.includes(row.Issue_Description)) return false;
+            if (except !== 'Status' && fstatus.length > 0) {
                 const s = (row.Current_Status || '').toLowerCase();
                 const isClosed = s === 'closed' || s === 'resolved';
-                if (fstatus === 'Open' && isClosed) return false;
-                if (fstatus === 'Closed' && !isClosed) return false;
+                const isSiteOk = s === 'site ok';
+                let match = false;
+                if (fstatus.includes('Open') && !isClosed && !isSiteOk) match = true;
+                if (fstatus.includes('Closed') && isClosed) match = true;
+                if (fstatus.includes('Site OK') && isSiteOk) match = true;
+                if (!match) return false;
+            }
+            if (except !== 'IssueAge') {
+                let diffMins = 0;
+                const s = (row.Current_Status || '').toLowerCase();
+                const isClosed = s === 'closed' || s === 'resolved' || s === 'site ok';
+                if (!isClosed) {
+                    diffMins = (now - new Date(row.Reported_Timestamp)) / 60000;
+                } else {
+                    const dur = row.Closure_Duration || '';
+                    const dMatch = dur.match(/(\d+)\s*d/i);
+                    const hMatch = dur.match(/(\d+)\s*h/i);
+                    const mMatch = dur.match(/(\d+)\s*m/i);
+                    if (dMatch) diffMins += parseInt(dMatch[1]) * 24 * 60;
+                    if (hMatch) diffMins += parseInt(hMatch[1]) * 60;
+                    if (mMatch) diffMins += parseInt(mMatch[1]);
+                    if (!dMatch && !hMatch && !mMatch) {
+                        const parsed = parseFloat(dur);
+                        if (!isNaN(parsed)) diffMins = parsed;
+                    }
+                }
+                if (diffMins < fageMin || diffMins > fageMax) return false;
             }
             if (except !== 'Date') {
                 if (dashStartDate && dashEndDate) {
@@ -1458,16 +1620,19 @@
             return true;
         };
 
-        const populate = (id, key, exceptName, currentValue) => {
+        const populate = (id, key, exceptName, currentValues) => {
             const validData = catData.filter(i => matchExcept(i, exceptName));
             const vals = [...new Set(validData.map(i => i[key]))].filter(Boolean);
             
             let html = `<option value="">All</option>`;
             vals.forEach(v => {
-                html += `<option value="${v}" ${v === currentValue ? 'selected' : ''}>${v}</option>`;
+                html += `<option value="${v}" ${currentValues.includes(v) ? 'selected' : ''}>${v}</option>`;
             });
             const el = document.getElementById(id);
-            if (el) el.innerHTML = html;
+            if (el) {
+                el.innerHTML = html;
+                buildMultiSelect(id);
+            }
         };
 
         populate('filterTerminal', 'Terminal', 'Terminal', ft);
@@ -1477,26 +1642,98 @@
         populate('filterIssueDesc', 'Issue_Description', 'IssueDesc', fid);
     }
 
+    const issueAgeSteps = [
+        { label: '0 mins', mins: 0 },
+        { label: '30 mins', mins: 30 },
+        { label: '1 hr', mins: 60 },
+        { label: '2 hrs', mins: 120 },
+        { label: '4 hrs', mins: 240 },
+        { label: '8 hrs', mins: 480 },
+        { label: '24 hrs', mins: 1440 },
+        { label: '48 hrs+', mins: 9999999 }
+    ];
+
+    function updateIssueAgeSlider() {
+        const minEl = document.getElementById('issueAgeMin');
+        const maxEl = document.getElementById('issueAgeMax');
+        if (!minEl || !maxEl) return;
+        let minVal = parseInt(minEl.value);
+        let maxVal = parseInt(maxEl.value);
+        
+        if (minVal > maxVal) {
+            let tmp = minVal;
+            minVal = maxVal;
+            maxVal = tmp;
+            minEl.value = minVal;
+            maxEl.value = maxVal;
+        }
+        
+        const minLabel = issueAgeSteps[minVal].label;
+        const maxLabel = issueAgeSteps[maxVal].label;
+        document.getElementById('issueAgeLabel').innerText = minVal === maxVal ? minLabel : `${minLabel} - ${maxLabel}`;
+        
+        const percent1 = (minVal / 7) * 100;
+        const percent2 = (maxVal / 7) * 100;
+        document.getElementById('issueAgeFill').style.left = percent1 + "%";
+        document.getElementById('issueAgeFill').style.width = (percent2 - percent1) + "%";
+    }
+
+    let isSyncing = false;
     function applyFilters() {
-        const ft = document.getElementById('filterTerminal') ? document.getElementById('filterTerminal').value : '';
-        const fm = document.getElementById('filterMedia') ? document.getElementById('filterMedia').value : '';
-        const fp = document.getElementById('filterPackage') ? document.getElementById('filterPackage').value : '';
-        const fit = document.getElementById('filterIssueType') ? document.getElementById('filterIssueType').value : '';
-        const fid = document.getElementById('filterIssueDesc') ? document.getElementById('filterIssueDesc').value : '';
-        const fstatus = document.getElementById('filterStatus') ? document.getElementById('filterStatus').value : '';
+        if(isSyncing) return;
+        isSyncing = true;
+        const ft = getSelectedValues('filterTerminal');
+        const fm = getSelectedValues('filterMedia');
+        const fp = getSelectedValues('filterPackage');
+        const fit = getSelectedValues('filterIssueType');
+        const fid = getSelectedValues('filterIssueDesc');
+        const fstatus = getSelectedValues('filterStatus');
+        const now = new Date();
+        const minEl = document.getElementById('issueAgeMin');
+        const maxEl = document.getElementById('issueAgeMax');
+        let fageMin = 0, fageMax = 9999999;
+        if (minEl && maxEl) {
+            fageMin = issueAgeSteps[parseInt(minEl.value)].mins;
+            fageMax = issueAgeSteps[parseInt(maxEl.value)].mins;
+        }
 
         const filtered = rawData.filter(i => {
             if (getAuditType(i) !== currentDashCategory) return false;
-            if (ft && i.Terminal !== ft) return false;
-            if (fm && i.Media_Type !== fm) return false;
-            if (fp && i.Package !== fp) return false;
-            if (fit && i.Issue_Type !== fit) return false;
-            if (fid && i.Issue_Description !== fid) return false;
-            if (fstatus) {
+            if (ft.length > 0 && !ft.includes(i.Terminal)) return false;
+            if (fm.length > 0 && !fm.includes(i.Media_Type)) return false;
+            if (fp.length > 0 && !fp.includes(i.Package)) return false;
+            if (fit.length > 0 && !fit.includes(i.Issue_Type)) return false;
+            if (fid.length > 0 && !fid.includes(i.Issue_Description)) return false;
+            if (fstatus.length > 0) {
                 const s = (i.Current_Status || '').toLowerCase();
                 const isClosed = s === 'closed' || s === 'resolved';
-                if (fstatus === 'Open' && isClosed) return false;
-                if (fstatus === 'Closed' && !isClosed) return false;
+                const isSiteOk = s === 'site ok';
+                let match = false;
+                if (fstatus.includes('Open') && !isClosed && !isSiteOk) match = true;
+                if (fstatus.includes('Closed') && isClosed) match = true;
+                if (fstatus.includes('Site OK') && isSiteOk) match = true;
+                if (!match) return false;
+            }
+            if (true) {
+                let diffMins = 0;
+                const s = (i.Current_Status || '').toLowerCase();
+                const isClosed = s === 'closed' || s === 'resolved' || s === 'site ok';
+                if (!isClosed) {
+                    diffMins = (now - new Date(i.Reported_Timestamp)) / 60000;
+                } else {
+                    const dur = i.Closure_Duration || '';
+                    const dMatch = dur.match(/(\d+)\s*d/i);
+                    const hMatch = dur.match(/(\d+)\s*h/i);
+                    const mMatch = dur.match(/(\d+)\s*m/i);
+                    if (dMatch) diffMins += parseInt(dMatch[1]) * 24 * 60;
+                    if (hMatch) diffMins += parseInt(hMatch[1]) * 60;
+                    if (mMatch) diffMins += parseInt(mMatch[1]);
+                    if (!dMatch && !hMatch && !mMatch) {
+                        const parsed = parseFloat(dur);
+                        if (!isNaN(parsed)) diffMins = parsed;
+                    }
+                }
+                if (diffMins < fageMin || diffMins > fageMax) return false;
             }
             if (dashStartDate && dashEndDate) {
                 const rowDate = new Date(i.Reported_Timestamp);
@@ -1510,6 +1747,7 @@
         
         syncFilters();
         renderDashboard(filtered);
+        isSyncing = false;
     }
 
     function renderAssetTrend() {
@@ -1535,8 +1773,12 @@
 
     function renderDashboard(dataToUse, isAsset = false, assetCode = "") {
         document.getElementById('kpiTotal').innerText = dataToUse.length;
-        document.getElementById('kpiOpen').innerText = dataToUse.filter(i => (i.Current_Status||'').toLowerCase() !== 'closed').length;
+        document.getElementById('kpiOpen').innerText = dataToUse.filter(i => {
+            const s = (i.Current_Status||'').toLowerCase();
+            return s !== 'closed' && s !== 'site ok';
+        }).length;
         document.getElementById('kpiClosed').innerText = dataToUse.filter(i => (i.Current_Status||'').toLowerCase() === 'closed').length;
+        document.getElementById('kpiSiteOk').innerText = dataToUse.filter(i => (i.Current_Status||'').toLowerCase() === 'site ok').length;
         const content = document.getElementById('historyContent');
         if (dataToUse.length === 0) content.innerHTML = `<div style="text-align:center; padding: 20px;">No records.</div>`;
         else {
@@ -1569,9 +1811,11 @@
         const timeline = {};
         dataToUse.forEach(i => {
             const d = new Date(i.Reported_Timestamp).toLocaleDateString();
-            if(!timeline[d]) timeline[d] = { total: 0, open: 0, closed: 0 };
+            if(!timeline[d]) timeline[d] = { total: 0, open: 0, closed: 0, siteOk: 0 };
             timeline[d].total++;
-            if((i.Current_Status||'').toLowerCase() === 'closed') timeline[d].closed++;
+            const s = (i.Current_Status||'').toLowerCase();
+            if(s === 'closed') timeline[d].closed++;
+            else if(s === 'site ok') timeline[d].siteOk++;
             else timeline[d].open++;
         });
         const sortedDates = Object.keys(timeline).sort((a,b) => new Date(a) - new Date(b));
@@ -1686,6 +1930,7 @@
         currentView = view;
         document.getElementById('btnOpen').className = `sub-nav-btn ${view === 'open' ? 'active' : ''}`;
         document.getElementById('btnClosed').className = `sub-nav-btn ${view === 'closed' ? 'active' : ''}`;
+        document.getElementById('btnSiteOk').className = `sub-nav-btn ${view === 'site ok' ? 'active' : ''}`;
         renderIssueList();
     }
 
@@ -1693,13 +1938,18 @@
         const list = document.getElementById('issueList');
         let filtered = rawData.filter(i => {
             const s = (i.Current_Status || "").toLowerCase();
-            const matchesView = currentView === 'open' ? s !== 'closed' : s === 'closed';
+            let matchesView = false;
+            if (currentView === 'open') matchesView = s !== 'closed' && s !== 'site ok';
+            else if (currentView === 'closed') matchesView = s === 'closed';
+            else if (currentView === 'site ok') matchesView = s === 'site ok';
             const matchesCategory = getAuditType(i) === currentListCategory;
             return matchesView && matchesCategory;
         });
         filtered.reverse();
         list.innerHTML = filtered.map(i => {
-            const isClosed = (i.Current_Status || "").toLowerCase() === 'closed';
+            const statusLower = (i.Current_Status || "").toLowerCase();
+            const isClosed = statusLower === 'closed';
+            const isSiteOk = statusLower === 'site ok';
             return `<div class="issue-card">
                 <div class="issue-header">
                     <div class="issue-title-group">
@@ -1724,7 +1974,7 @@
                     <span><b>${isClosed ? 'Duration:' : 'Age:'}</b> ${isClosed ? i.Closure_Duration : getPendingTime(i.Reported_Timestamp)}</span>
                     <span><b>Reported:</b> ${new Date(i.Reported_Timestamp).toLocaleDateString()}</span>
                 </div>
-                ${!isClosed ? `
+                ${(!isClosed && !isSiteOk) ? `
                 <div style="margin-top:12px;">
                     <button onclick="toggleResolveBox(${i.rowId})" class="btn-secondary" style="width:100%; padding:8px; font-size:12px; border-color: var(--success-green); color: var(--success-green);">RESOLVE TICKET</button>
                     <div id="resolve-box-${i.rowId}" style="display:none; margin-top: 12px; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
