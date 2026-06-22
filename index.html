@@ -1116,15 +1116,16 @@
                 <div><label style="margin-top:0;">Issue Type</label><select id="filterIssueType" multiple onchange="applyFilters()"></select></div>
                 <div><label style="margin-top:0;">Issue Desc</label><select id="filterIssueDesc" multiple onchange="applyFilters()"></select></div>
                 <div><label style="margin-top:0;">Status</label><select id="filterStatus" multiple onchange="applyFilters()"><option value="Open">Open</option><option value="Closed">Closed</option><option value="Site OK">Site OK</option></select></div>
-                                <div style="grid-column: span 3;">
+                <div><label style="margin-top:0;">Records</label><select id="filterUniqueness" onchange="applyFilters()"><option value="All">All</option><option value="Unique">Unique</option></select></div>
+                <div id="issueAgeFilterContainer" style="grid-column: span 3; display: none;">
                     <label style="margin-top:0; display:flex; justify-content:space-between;">
                         <span>Issue Age</span>
                         <span id="issueAgeDisplay" style="font-weight:600; color:var(--primary);">All</span>
                     </label>
                     <div class="dual-slider-container" style="margin-top: 8px;">
                         <div class="dual-slider-track" id="issueAgeTrack"></div>
-                        <input type="range" id="issueAgeMin" class="dual-slider-input" min="0" max="6" value="0" oninput="updateIssueAgeSlider()" onchange="applyFilters()">
-                        <input type="range" id="issueAgeMax" class="dual-slider-input" min="0" max="6" value="6" oninput="updateIssueAgeSlider()" onchange="applyFilters()">
+                        <input type="range" id="issueAgeMin" class="dual-slider-input" min="0" max="7" value="0" oninput="updateIssueAgeSlider()" onchange="applyFilters()">
+                        <input type="range" id="issueAgeMax" class="dual-slider-input" min="0" max="7" value="7" oninput="updateIssueAgeSlider()" onchange="applyFilters()">
                     </div>
                 </div>
                 <div style="grid-column: span 3;"><label style="margin-top:0; visibility: hidden;">Search</label>
@@ -1344,7 +1345,20 @@
     let currentDashCategory = 'Operations';
 
     function getAuditType(issue) {
-        if (issue.Audit_Type) return issue.Audit_Type;
+        // Check if ANY property in the issue exactly matches 'Quality' or 'Operations' 
+        // (This handles cases where the Audit_Type column shifted in Google Sheets)
+        for (let key in issue) {
+            if (issue[key]) {
+                let val = issue[key].toString().trim().toLowerCase();
+                if (val === 'quality') return 'Quality';
+                if (val === 'operations') return 'Operations';
+            }
+        }
+        
+        if (issue.Audit_Type) {
+            let at = issue.Audit_Type.toString().trim();
+            return at;
+        }
         if (!issue.Issue_Type) return 'Operations';
         if (fullAuditMapping['Quality'] && Object.keys(fullAuditMapping['Quality']).includes(issue.Issue_Type)) {
             return 'Quality';
@@ -1640,6 +1654,7 @@
                 Array.from(el.options).forEach(opt => opt.selected = false);
             }
         });
+        if (document.getElementById('filterUniqueness')) document.getElementById('filterUniqueness').value = 'All';
         if (document.getElementById('assetSearch')) document.getElementById('assetSearch').value = "";
         if (document.getElementById('issueAgeMin')) document.getElementById('issueAgeMin').value = 0;
         if (document.getElementById('issueAgeMax')) document.getElementById('issueAgeMax').value = 7;
@@ -1719,7 +1734,7 @@
         { label: '4 hrs', mins: 240 },
         { label: '8 hrs', mins: 480 },
         { label: '24 hrs', mins: 1440 },
-        { label: '48 hrs+', mins: 9999999 }
+        { label: '> 24 hrs', mins: 9999999 }
     ];
 
     function updateIssueAgeSlider() {
@@ -1742,8 +1757,8 @@
         document.getElementById('issueAgeDisplay').innerText = minVal === maxVal ? minLabel : `${minLabel} - ${maxLabel}`;
         
         const track = document.getElementById('issueAgeTrack');
-        const percent1 = (minVal / 6) * 100;
-        const percent2 = (maxVal / 6) * 100;
+        const percent1 = (minVal / 7) * 100;
+        const percent2 = (maxVal / 7) * 100;
         track.style.background = `linear-gradient(to right, #e2e8f0 ${percent1}%, #2563eb ${percent1}%, #2563eb ${percent2}%, #e2e8f0 ${percent2}%)`;
     }
 
@@ -1796,6 +1811,8 @@
         const fstatus = getSelectedValues('filterStatus');
         const assetSearchEl = document.getElementById('assetSearch');
         const searchAsset = assetSearchEl ? assetSearchEl.value.trim() : '';
+        const funiqueEl = document.getElementById('filterUniqueness');
+        const funique = funiqueEl ? funiqueEl.value : 'All';
         const now = new Date();
         const minEl = document.getElementById('issueAgeMin');
         const maxEl = document.getElementById('issueAgeMax');
@@ -1805,9 +1822,26 @@
             fageMax = issueAgeSteps[parseInt(maxEl.value)].mins;
         }
 
+        let allowedUniqueIds = null;
+        if (funique === 'Unique') {
+            allowedUniqueIds = new Set();
+            const latest = {};
+            rawData.forEach(i => {
+                if (getAuditType(i) === currentDashCategory && i.Asset_Code) {
+                    const t = new Date(i.Reported_Timestamp).getTime();
+                    if (!latest[i.Asset_Code] || t > latest[i.Asset_Code].time) {
+                        latest[i.Asset_Code] = { time: t, id: i.rowId };
+                    }
+                }
+            });
+            Object.values(latest).forEach(v => allowedUniqueIds.add(v.id));
+        }
+
         const kpiFiltered = [];
         const filtered = rawData.filter(i => {
             if (getAuditType(i) !== currentDashCategory) return false;
+            
+            if (allowedUniqueIds && !allowedUniqueIds.has(i.rowId)) return false;
 
             if (searchAsset) {
                 const assetCode = i.Asset_Code || '';
@@ -1821,7 +1855,7 @@
             if (fp.length > 0 && !fp.includes(i.Package)) return false;
             if (fit.length > 0 && !fit.includes(i.Issue_Type)) return false;
             if (fid.length > 0 && !fid.includes(i.Issue_Description)) return false;
-            if (true) {
+            if (currentDashCategory === 'Operations') {
                 let diffMins = 0;
                 const sAge = (i.Current_Status || '').toLowerCase();
                 const isClosedAge = sAge === 'closed' || sAge === 'resolved' || sAge === 'site ok';
@@ -1840,7 +1874,9 @@
                         if (!isNaN(parsed)) diffMins = parsed;
                     }
                 }
-                if (diffMins < fageMin || diffMins > fageMax) return false;
+                
+                // If fageMin is 0, allow negative diffMins (future timestamps from timezone differences)
+                if (diffMins > fageMax || (fageMin > 0 && diffMins < fageMin)) return false;
             }
             if (dashStartDate && dashEndDate) {
                 const rowDate = new Date(i.Reported_Timestamp);
@@ -2260,6 +2296,11 @@
         } else {
             document.getElementById('menuReport').style.display = 'flex';
             applyRoleAccess();
+            
+            const ageFilterContainer = document.getElementById('issueAgeFilterContainer');
+            if (ageFilterContainer) {
+                ageFilterContainer.style.display = (type === 'Operations') ? 'block' : 'none';
+            }
             
             document.getElementById('auditTitle').innerText = type + ' Verification';
             
